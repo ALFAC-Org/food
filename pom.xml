@@ -8,6 +8,7 @@
         <module>food-main</module>
         <module>food-core</module>
         <module>food-infra</module>
+        <module>food-unit-test</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
