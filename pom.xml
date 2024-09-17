@@ -62,4 +62,11 @@
             </plugin>
         </plugins>
     </build>
+    <scm>
+        <connection>scm:git:git@github.com:ALFAC-Org/food.git</connection>
+        <developerConnection>scm:git:git@github.com:ALFAC-Org/food.git</developerConnection>
+        <url>https://github.com/ALFAC-Org/food</url>
+        <tag>HEAD</tag>
+    </scm>
+
 </project>
