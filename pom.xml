@@ -16,7 +16,7 @@
     </parent>
     <groupId>br.com.alfac</groupId>
     <artifactId>food</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>food</name>
     <description>food</description>
     <properties>
@@ -76,7 +76,7 @@
         <connection>scm:git:git@github.com:ALFAC-Org/food.git</connection>
         <developerConnection>scm:git:git@github.com:ALFAC-Org/food.git</developerConnection>
         <url>https://github.com/ALFAC-Org/food</url>
-        <tag>v0.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
 </project>
