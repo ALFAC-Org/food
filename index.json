@@ -1,0 +1,1299 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API - Aplicação Fast Food - ALFAC",
+    "description": "API para manipulação de pedidos, itens e clientes",
+    "version": "0.2"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Pedido",
+      "description": "Métodos para manipulação de pedidos"
+    },
+    {
+      "name": "Item",
+      "description": "Métodos para manipulação de itens (LANCHE, COMPLEMENTO, ACOMPANHAMENTO, BEBIDA, SOBREMESA...)"
+    },
+    {
+      "name": "Pagamento",
+      "description": "Métodos para manipulação de pagamentos"
+    },
+    {
+      "name": "Retorno Pagamento",
+      "description": "Métodos manipulação do retorno de pagamento"
+    },
+    {
+      "name": "Cliente",
+      "description": "Métodos para manipulação de clientes"
+    }
+  ],
+  "paths": {
+    "/api/v1/pedidos/{id}/atualizar-status": {
+      "put": {
+        "tags": [
+          "Pedido"
+        ],
+        "summary": "Atualizar status do pedido (de modo sequencial)",
+        "operationId": "atualizarStatusPedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/itens/{id}": {
+      "put": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Atualizar item por id",
+        "operationId": "atualizarItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum item cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Deletar item por id",
+        "operationId": "excluirItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum item cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wh/v1/pagamentos": {
+      "post": {
+        "tags": [
+          "Retorno Pagamento"
+        ],
+        "summary": "Responsável por receber estimulo requisição quando pagamento realizado na processadora de pagamento",
+        "operationId": "consultarPedidoPorStatus",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetornoPagamentoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v2/clientes": {
+      "post": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Cadastrar cliente",
+        "operationId": "cadastrarCliente",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClienteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente cadastrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro ao cadastrar cliente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pedidos": {
+      "get": {
+        "tags": [
+          "Pedido"
+        ],
+        "summary": "Listar todos os pedidos com status PRONTO, EM_PREPARACAO e RECEBIDO, ordenados na mesma ordem dos status",
+        "operationId": "listarPedidos",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PedidoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pedido"
+        ],
+        "summary": "Registrar Pedidos",
+        "description": "Lembre-se de adicionar os itens que deseja dentro da estrutura exemplificada",
+        "operationId": "registrarPedido",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoRequest"
+              },
+              "examples": {
+                "Pedido completo": {
+                  "description": "Pedido completo",
+                  "value": {
+                    "clienteId": 1,
+                    "combos": [
+                      {
+                        "lanche": {
+                          "id": 1,
+                          "complementos": [
+                            {
+                              "id": 6
+                            }
+                          ],
+                          "observacoes": "Capricha no queijo!"
+                        },
+                        "acompanhamento": {
+                          "id": 8
+                        },
+                        "bebida": {
+                          "id": 11
+                        },
+                        "sobremesa": {
+                          "id": 14
+                        }
+                      }
+                    ]
+                  }
+                },
+                "Apenas lanche e complemento": {
+                  "description": "Apenas lanche e complemento",
+                  "value": {
+                    "clienteId": 1,
+                    "combos": [
+                      {
+                        "lanche": {
+                          "id": 1,
+                          "complementos": [
+                            {
+                              "id": 6
+                            }
+                          ],
+                          "observacoes": "Capricha no queijo!"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "Apenas acompanhamento": {
+                  "description": "Apenas acompanhamento",
+                  "value": {
+                    "clienteId": 1,
+                    "combos": [
+                      {
+                        "acompanhamento": {
+                          "id": 8
+                        }
+                      }
+                    ]
+                  }
+                },
+                "Apenas bebida": {
+                  "description": "Apenas bebida",
+                  "value": {
+                    "clienteId": 1,
+                    "combos": [
+                      {
+                        "bebida": {
+                          "id": 11
+                        }
+                      }
+                    ]
+                  }
+                },
+                "Apenas sobremesa": {
+                  "description": "Apenas sobremesa",
+                  "value": {
+                    "clienteId": 1,
+                    "combos": [
+                      {
+                        "sobremesa": {
+                          "id": 14
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Pedido registrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoCriadoDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro ao registrar pedido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/itens": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Consultar todos os itens",
+        "operationId": "consultarItens",
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum item cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Criar novo item",
+        "operationId": "cadastrarItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro ao cadastrar item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clientes": {
+      "post": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Cadastrar cliente",
+        "operationId": "cadastrarCliente_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClienteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente cadastrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro ao cadastrar cliente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/clientes/{id}": {
+      "get": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Consultar cliente pelo id",
+        "operationId": "consultarClientePorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna o cliente pelo id informado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Retorna cliente não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/clientes/por-uuid/{uuid}": {
+      "get": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Consultar cliente pelo uuid",
+        "operationId": "consultarClientePorUuid",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna o cliente pelo uuid informado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Retorna cliente não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/clientes/por-cpf/{cpf}": {
+      "get": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Consultar cliente pelo CPF",
+        "description": "CPF contém 11 dígitos",
+        "operationId": "consultarCliente",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum cliente encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pedidos/{id}": {
+      "get": {
+        "tags": [
+          "Pedido"
+        ],
+        "summary": "Consultar pedido por pedido id",
+        "operationId": "consultarPedidoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pedidos/status/{status}": {
+      "get": {
+        "tags": [
+          "Pedido"
+        ],
+        "summary": "Consultar pedidos por status",
+        "operationId": "consultarPedidoPorStatus_1",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AGUARDANDO_PAGAMENTO",
+                "RECEBIDO",
+                "EM_PREPARACAO",
+                "PRONTO",
+                "FINALIZADO",
+                "CANCELADO"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidosResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pagamentos/status-pagamento/{pedido_id}": {
+      "get": {
+        "tags": [
+          "Pagamento"
+        ],
+        "summary": "Consultar status do pedido por pedido id",
+        "operationId": "consultarStatusPedidoPorPedidoId",
+        "parameters": [
+          {
+            "name": "pedido_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagamentoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/itens/por-id/{id}": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Consultar item por Id",
+        "operationId": "consultarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum item cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/itens/por-categoria/{categoria}/itens": {
+      "get": {
+        "tags": [
+          "Item"
+        ],
+        "summary": "Consultar itens por categoria",
+        "operationId": "consultarItensPorCategoria",
+        "parameters": [
+          {
+            "name": "categoria",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "LANCHE",
+                "COMPLEMENTO",
+                "ACOMPANHAMENTO",
+                "BEBIDA",
+                "SOBREMESA"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum item cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clientes/{id}": {
+      "get": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Consultar cliente pelo id",
+        "operationId": "consultarClientePorId_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna o cliente pelo id informado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Retorna cliente não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clientes/por-uuid/{uuid}": {
+      "get": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Consultar cliente pelo uuid",
+        "operationId": "consultarClientePorUuid_1",
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna o cliente pelo uuid informado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Retorna cliente não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clientes/por-cpf/{cpf}": {
+      "get": {
+        "tags": [
+          "Cliente"
+        ],
+        "summary": "Consultar cliente pelo CPF",
+        "description": "CPF contém 11 dígitos",
+        "operationId": "consultarCliente_1",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação bem sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum cliente encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ComboDTO": {
+        "type": "object",
+        "properties": {
+          "lanche": {
+            "$ref": "#/components/schemas/LancheDTO"
+          },
+          "acompanhamento": {
+            "$ref": "#/components/schemas/ItemDTO"
+          },
+          "bebida": {
+            "$ref": "#/components/schemas/ItemDTO"
+          },
+          "sobremesa": {
+            "$ref": "#/components/schemas/ItemDTO"
+          },
+          "valorTotal": {
+            "type": "number"
+          }
+        }
+      },
+      "ItemDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "preco": {
+            "type": "number"
+          },
+          "categoria": {
+            "type": "string",
+            "enum": [
+              "LANCHE",
+              "COMPLEMENTO",
+              "ACOMPANHAMENTO",
+              "BEBIDA",
+              "SOBREMESA"
+            ]
+          }
+        }
+      },
+      "LancheDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "preco": {
+            "type": "number"
+          },
+          "categoria": {
+            "type": "string",
+            "enum": [
+              "LANCHE",
+              "COMPLEMENTO",
+              "ACOMPANHAMENTO",
+              "BEBIDA",
+              "SOBREMESA"
+            ]
+          },
+          "complementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemDTO"
+            }
+          },
+          "observacoes": {
+            "type": "string"
+          }
+        }
+      },
+      "PedidoDTO": {
+        "type": "object",
+        "properties": {
+          "combos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComboDTO"
+            }
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "statusPedido": {
+            "type": "string",
+            "enum": [
+              "AGUARDANDO_PAGAMENTO",
+              "RECEBIDO",
+              "EM_PREPARACAO",
+              "PRONTO",
+              "FINALIZADO",
+              "CANCELADO"
+            ]
+          },
+          "valorTotal": {
+            "type": "number"
+          }
+        }
+      },
+      "ItemRequest": {
+        "required": [
+          "categoria",
+          "nome",
+          "preco"
+        ],
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Hamburguer"
+          },
+          "preco": {
+            "type": "number",
+            "format": "double",
+            "example": 11.5
+          },
+          "categoria": {
+            "type": "string",
+            "example": "LANCHE",
+            "enum": [
+              "LANCHE",
+              "COMPLEMENTO",
+              "ACOMPANHAMENTO",
+              "BEBIDA",
+              "SOBREMESA"
+            ]
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "date": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiErrorItem"
+            }
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiErrorItem": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "date": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RetornoPagamentoRequest": {
+        "type": "object",
+        "properties": {
+          "pagamentoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "statusConfirmacaoPagamento": {
+            "type": "string",
+            "enum": [
+              "APROVADO",
+              "REPROVADO"
+            ]
+          }
+        }
+      },
+      "ClienteRequest": {
+        "required": [
+          "cpf",
+          "email",
+          "nome"
+        ],
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "teste@teste.com"
+          },
+          "cpf": {
+            "maxLength": 11,
+            "minLength": 11,
+            "type": "string",
+            "example": "12345678910"
+          }
+        }
+      },
+      "ClienteDTO": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uuid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uuId": {
+            "type": "string",
+            "format": "uuid",
+            "writeOnly": true
+          }
+        }
+      },
+      "ComboRequest": {
+        "type": "object",
+        "properties": {
+          "lanche": {
+            "$ref": "#/components/schemas/LancheRequest"
+          },
+          "acompanhamento": {
+            "$ref": "#/components/schemas/ItemRequest"
+          },
+          "bebida": {
+            "$ref": "#/components/schemas/ItemRequest"
+          },
+          "sobremesa": {
+            "$ref": "#/components/schemas/ItemRequest"
+          }
+        }
+      },
+      "LancheRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 15
+          },
+          "complementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemRequest"
+            }
+          },
+          "observacoes": {
+            "type": "string"
+          }
+        }
+      },
+      "PedidoRequest": {
+        "type": "object",
+        "properties": {
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "combos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComboRequest"
+            }
+          }
+        }
+      },
+      "PedidoCriadoDTO": {
+        "type": "object",
+        "properties": {
+          "pedido": {
+            "$ref": "#/components/schemas/PedidoDTO"
+          },
+          "qrCodePagamento": {
+            "type": "string"
+          }
+        }
+      },
+      "PedidosResponse": {
+        "type": "object",
+        "properties": {
+          "pedidos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PedidoDTO"
+            }
+          }
+        }
+      },
+      "PagamentoResponse": {
+        "type": "object",
+        "properties": {
+          "idPedido": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDENTE",
+              "APROVADO",
+              "CANCELADO"
+            ]
+          },
+          "pedidoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dataPagamento": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
