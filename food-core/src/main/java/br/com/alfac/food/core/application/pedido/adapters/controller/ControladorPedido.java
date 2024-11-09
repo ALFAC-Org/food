@@ -1,7 +1,9 @@
 package br.com.alfac.food.core.application.pedido.adapters.controller;
 
 import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioClienteGateway;
+import br.com.alfac.food.core.application.cliente.usecases.ConsultarClientePorIdUseCase;
 import br.com.alfac.food.core.application.item.adapters.gateways.RepositorioItemGateway;
+import br.com.alfac.food.core.application.item.usecases.ConsultarItemPorIdUseCase;
 import br.com.alfac.food.core.application.pagamento.adapters.gateways.PagamentoClientGateway;
 import br.com.alfac.food.core.application.pagamento.adapters.gateways.RepositorioPagamentoGateway;
 import br.com.alfac.food.core.application.pagamento.usecases.CriarPagamentoPendenteUseCase;
@@ -30,7 +32,9 @@ public class ControladorPedido {
                              final RepositorioPagamentoGateway repositorioPagamentoGateway,
                              final PagamentoClientGateway pagamentoClientGateway) {
         this.repositorioPedidoGateway = repositorioPedidoGateway;
-        this.criarPedidoUseCase = new CriarPedidoUseCase(repositorioPedidoGateway, clienteRepository, itemRepository);
+        var consultarClientePorIdUseCase = new ConsultarClientePorIdUseCase(clienteRepository);
+        var consultarItemPorIdUseCase = new ConsultarItemPorIdUseCase(itemRepository);
+        this.criarPedidoUseCase = new CriarPedidoUseCase(repositorioPedidoGateway, consultarClientePorIdUseCase, consultarItemPorIdUseCase);
         this.criarPagamentoPendenteUseCase = new CriarPagamentoPendenteUseCase(repositorioPagamentoGateway);
         this.criarQrCodePagamento = new CriarQrCodePagamento(pagamentoClientGateway);
     }
