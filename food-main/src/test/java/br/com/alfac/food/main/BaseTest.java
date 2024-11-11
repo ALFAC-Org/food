@@ -8,7 +8,7 @@ public abstract class BaseTest {
     @BeforeAll
     public static void loadEnv() {
         Dotenv.configure()
-                .filename("config/env/.env.test")
+                .filename("config/env/test.env")
                 .load();
     }
 }
