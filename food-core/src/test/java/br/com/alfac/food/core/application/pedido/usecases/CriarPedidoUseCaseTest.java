@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import utils.ClienteHelper;
 import utils.PedidoHelper;
 
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class CriarPedidoUseCaseTest {
                     .isInstanceOf(Pedido.class);
 
             pedidoRetornado
-                    .extracting(p -> p.getCliente().getId())
+                    .extracting(p -> p.getClienteId())
                     .isEqualTo(pedidoDTO.getClienteId());
         }
 
@@ -96,7 +97,7 @@ public class CriarPedidoUseCaseTest {
                     .isInstanceOf(Pedido.class);
 
             pedidoRetornado
-                    .extracting(Pedido::getCliente)
+                    .extracting(Pedido::getClienteId)
                     .isNull();
         }
 
@@ -116,7 +117,7 @@ public class CriarPedidoUseCaseTest {
 
             if (comCliente) {
                 when(consultarClientePorIdUseCase.execute(any(Long.class)))
-                        .thenReturn(pedidoComCliente.getCliente());
+                        .thenReturn(ClienteHelper.criarCliente(pedidoComCliente.getId()));
             }
 
             when(repositorioPedidoGateway.registrarPedido(any(Pedido.class)))
@@ -129,7 +130,7 @@ public class CriarPedidoUseCaseTest {
                         return itemMap.get(id);
                     });
             when(consultarClientePorIdUseCase.execute(any(Long.class)))
-                    .thenReturn(pedidoComCliente.getCliente());
+                    .thenReturn(ClienteHelper.criarCliente(pedidoComCliente.getClienteId()));
 
             when(repositorioPedidoGateway.registrarPedido(any(Pedido.class)))
                     .thenReturn(pedidoComCliente);

@@ -1,7 +1,7 @@
 package br.com.alfac.food.infra.config.beans;
 
 import br.com.alfac.food.core.application.pedido.adapters.controller.ControladorPedido;
-import br.com.alfac.food.infra.cliente.gateways.RepositorioClienteMySQLGatewayImpl;
+import br.com.alfac.food.infra.cliente.gateways.RepositorioClienteGatewayMemoria;
 import br.com.alfac.food.infra.item.gateways.RepositorioItemGatewayImpl;
 import br.com.alfac.food.infra.pagamento.client.PagamentoClientGatewayImpl;
 import br.com.alfac.food.infra.pagamento.gateway.RepositorioPagamentoGatewayImpl;
@@ -14,10 +14,10 @@ public class PedidoConfiguration {
 
     @Bean
     public ControladorPedido pedidoService(final RepositorioPedidoGatewayImpl repositorioPedidoGateway,
-                                           final RepositorioClienteMySQLGatewayImpl repositorioClienteMySQLGateway,
+                                           final RepositorioClienteGatewayMemoria repositorioClienteGateway,
                                            final RepositorioItemGatewayImpl repositorioItemGateway,
                                            final RepositorioPagamentoGatewayImpl repositorioPagamentoGateway,
                                            final PagamentoClientGatewayImpl pagamentoClientGateway) {
-        return new ControladorPedido(repositorioPedidoGateway, repositorioClienteMySQLGateway, repositorioItemGateway, repositorioPagamentoGateway, pagamentoClientGateway);
+        return new ControladorPedido(repositorioPedidoGateway, repositorioClienteGateway, repositorioItemGateway, repositorioPagamentoGateway, pagamentoClientGateway);
     }
 }

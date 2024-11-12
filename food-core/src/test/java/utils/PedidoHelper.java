@@ -21,7 +21,7 @@ public abstract class PedidoHelper {
     public static Pedido criarPedidoComCliente() throws FoodException {
         return  new Pedido(
                 1L,
-                ClienteHelper.criarCliente(),
+                ClienteHelper.criarCliente().getId(),
                 StatusPedido.AGUARDANDO_PAGAMENTO,
                 List.of(ComboHelper.criarCombo()),
                 LocalDateTime.now()

@@ -16,25 +16,25 @@ import java.util.Objects;
 public class Pedido {
 
     private Long id;
-    private Cliente cliente;
+    private Long clienteId;
     private StatusPedido status;
     private List<Combo> combos;
     private LocalDateTime dataCadastro;
 
 
-    public Pedido(final Cliente cliente) {
-        this.cliente = cliente;
+    public Pedido(final Long clienteId) {
+        this.clienteId = clienteId;
         this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
         this.dataCadastro = LocalDateTime.now();
         this.combos = new ArrayList<>();
 
     }
 
-    public Pedido(final Long id, final Cliente cliente, final StatusPedido status, final List<Combo> combos, final LocalDateTime dataCadastro) throws FoodException {
+    public Pedido(final Long id, final Long clienteId, final StatusPedido status, final List<Combo> combos, final LocalDateTime dataCadastro) throws FoodException {
 
         validarDados(id, status, dataCadastro);
         this.id = id;
-        this.cliente = cliente;
+        this.clienteId = clienteId;
         this.status = status;
         this.combos = combos;
         this.dataCadastro = dataCadastro;
@@ -98,8 +98,8 @@ public class Pedido {
     }
 
 
-    public Cliente getCliente() {
-        return cliente;
+    public Long getClienteId() {
+        return clienteId;
     }
 
 
