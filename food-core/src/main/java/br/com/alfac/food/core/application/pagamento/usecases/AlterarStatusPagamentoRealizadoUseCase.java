@@ -12,17 +12,13 @@ import java.util.Optional;
 
 public class AlterarStatusPagamentoRealizadoUseCase {
 
-
     private final RepositorioPagamentoGateway pagamentoRepository;
 
     public AlterarStatusPagamentoRealizadoUseCase(final RepositorioPagamentoGateway pagamentoRepository) {
         this.pagamentoRepository = pagamentoRepository;
     }
 
-
     public Pagamento executar(final Long idPagamento, final StatusConfirmacaoPagamento statusConfirmacaoPagamento) throws FoodException {
-
-
         Optional<Pagamento> pagamentoOpt = pagamentoRepository.buscarPorId(idPagamento);
 
         Pagamento pagamento = pagamentoOpt.orElseThrow(() -> new FoodException(PagamentoErro.PAGAMENTO_NAO_ENCONTRADO));
@@ -33,11 +29,8 @@ public class AlterarStatusPagamentoRealizadoUseCase {
             pagamento.cancelar();
         }
 
-
         PagamentoResponse pagamentoEntityAtualizado = PagamentoMapper.toPagamentoEntityDTO(pagamento);
 
         return pagamentoRepository.atualizar(pagamentoEntityAtualizado);
-
-
     }
 }
