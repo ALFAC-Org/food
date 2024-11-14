@@ -19,28 +19,41 @@ import br.com.alfac.food.core.domain.pedido.StatusPedido;
 import br.com.alfac.food.core.exception.FoodException;
 
 import java.util.List;
+import java.util.Map;
 
 public class ControladorPedido {
 
+    private final ConsultarClientePorIdUseCase consultarClientePorIdUseCase;
     private final CriarPedidoUseCase criarPedidoUseCase;
     private final CriarPagamentoPendenteUseCase criarPagamentoPendenteUseCase;
     private final CriarQrCodePagamento criarQrCodePagamento;
+    private final ListarPedidosOrdenadosUseCase listarPedidosOrdenadosUseCase;
+    private final ConsultarPedidoPorIdUseCase consultarPedidoPorIdUseCase;
+    private final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase;
+    private final ListarPedidosPorStatusUseCase listarPedidosPorStatusUseCase;
     private final RepositorioPedidoGateway repositorioPedidoGateway;
 
-    public ControladorPedido(final RepositorioPedidoGateway repositorioPedidoGateway, final RepositorioClienteGateway clienteRepository,
-                             final RepositorioItemGateway itemRepository,
-                             final RepositorioPagamentoGateway repositorioPagamentoGateway,
-                             final PagamentoClientGateway pagamentoClientGateway) {
+    public ControladorPedido(final ConsultarClientePorIdUseCase consultarClientePorIdUseCase,
+                             final CriarPedidoUseCase criarPedidoUseCase,
+                             final CriarPagamentoPendenteUseCase criarPagamentoPendenteUseCase,
+                             final CriarQrCodePagamento criarQrCodePagamento,
+                             final ListarPedidosOrdenadosUseCase listartPedidosOrdenadosUseCase,
+                             final ConsultarPedidoPorIdUseCase consultarPedidoPorIdUseCase,
+                             final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase,
+                             final ListarPedidosPorStatusUseCase listarPedidosPorStatusUseCase,
+                             final RepositorioPedidoGateway repositorioPedidoGateway) {
+        this.consultarClientePorIdUseCase = consultarClientePorIdUseCase;
+        this.criarPedidoUseCase = criarPedidoUseCase;
+        this.criarPagamentoPendenteUseCase = criarPagamentoPendenteUseCase;
+        this.criarQrCodePagamento = criarQrCodePagamento;
+        this.listarPedidosOrdenadosUseCase = listartPedidosOrdenadosUseCase;
+        this.consultarPedidoPorIdUseCase = consultarPedidoPorIdUseCase;
+        this.atualizarStatusPedidoUseCase = atualizarStatusPedidoUseCase;
+        this.listarPedidosPorStatusUseCase = listarPedidosPorStatusUseCase;
         this.repositorioPedidoGateway = repositorioPedidoGateway;
-        var consultarClientePorIdUseCase = new ConsultarClientePorIdUseCase(clienteRepository);
-        var consultarItemPorIdUseCase = new ConsultarItemPorIdUseCase(itemRepository);
-        this.criarPedidoUseCase = new CriarPedidoUseCase(repositorioPedidoGateway, consultarClientePorIdUseCase, consultarItemPorIdUseCase);
-        this.criarPagamentoPendenteUseCase = new CriarPagamentoPendenteUseCase(repositorioPagamentoGateway);
-        this.criarQrCodePagamento = new CriarQrCodePagamento(pagamentoClientGateway);
     }
 
     public PedidoCriadoDTO criarPedido(PedidoDTO pedidoDTO) throws FoodException {
-
         Pedido pedido = criarPedidoUseCase.executar(pedidoDTO);
 
         Pagamento pagamento = criarPagamentoPendenteUseCase.executar(pedido.getId());
@@ -51,33 +64,26 @@ public class ControladorPedido {
     }
 
     public List<PedidoDTO> listarPedidos() {
-        ListarPedidosOrdenadosUseCase listarPedidosOrdenadosUseCase = new ListarPedidosOrdenadosUseCase(this.repositorioPedidoGateway);
         List<Pedido> pedidos = listarPedidosOrdenadosUseCase.executar();
+
         return PedidoPresenter.mapearParaPedidoDTO(pedidos);
     }
 
     public PedidoDTO consultarPedidoPorId(final Long id) throws FoodException {
-
-        ConsultarPedidoPorIdUseCase consultarPedidoPorIdUseCase = new ConsultarPedidoPorIdUseCase(this.repositorioPedidoGateway);
-
         Pedido pedido = consultarPedidoPorIdUseCase.executar(id);
 
         return PedidoPresenter.mapearParaPedidoDTO(pedido);
-
     }
 
     public PedidoDTO atualizarStatusPedido(final Long id) throws FoodException {
-        AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase = new AtualizarStatusPedidoUseCase(this.repositorioPedidoGateway);
         Pedido pedido = atualizarStatusPedidoUseCase.executar(id);
 
         return PedidoPresenter.mapearParaPedidoDTO(pedido);
     }
 
     public List<PedidoDTO> listarPedidosPorStatus(final StatusPedido status) {
-        ListarPedidosPorStatusUseCase listarPedidosPorStatusUseCase = new ListarPedidosPorStatusUseCase(this.repositorioPedidoGateway);
         List<Pedido> pedidos = listarPedidosPorStatusUseCase.executar(status);
+
         return PedidoPresenter.mapearParaPedidoDTO(pedidos);
-
-
     }
 }
