@@ -54,10 +54,10 @@ public class Combo {
     }
 
     public BigDecimal getTotal() {
-
         if (total != null) {
             return total.setScale(2, RoundingMode.HALF_UP);
         }
+
         return total;
     }
 
@@ -67,6 +67,7 @@ public class Combo {
 
     public void calcularValorTotal() {
         this.total = BigDecimal.ZERO;
+
         if (lanche != null) {
             this.setTotal(this.total.add(lanche.getPreco()));
             if (CollectionsUtils.naoVazio(lanche.getComplementos())) {
@@ -75,12 +76,15 @@ public class Combo {
                 );
             }
         }
+
         if (acompanhamento != null) {
             this.setTotal(this.total.add(acompanhamento.getPreco()));
         }
+
         if (bebida != null) {
             this.setTotal(this.total.add(bebida.getPreco()));
         }
+
         if (sobremesa != null) {
             this.setTotal(this.total.add(sobremesa.getPreco()));
         }
@@ -88,22 +92,27 @@ public class Combo {
 
     public List<Item> getItens() {
         List<Item> itens = new ArrayList<>();
+
         if (lanche != null) {
             itens.add(lanche);
         }
+
         if (acompanhamento != null) {
             itens.add(acompanhamento);
         }
+
         if (bebida != null) {
             itens.add(bebida);
         }
+
         if (sobremesa != null) {
             itens.add(sobremesa);
         }
+
         return itens;
     }
-    public void validarItens() throws FoodException {
 
+    public void validarItens() throws FoodException {
         if (CollectionsUtils.vazio(getItens())) {
             throw new FoodException(ComboError.COMBO_VAZIO);
         }
@@ -121,7 +130,6 @@ public class Combo {
     }
 
     private FoodError getErro(final Item itemValidacao, final CategoriaItem categoriaItemEsperada, final FoodError error) {
-
         if (Objects.nonNull(itemValidacao) && categoriaItemNaoPermitida(categoriaItemEsperada, itemValidacao.getCategoria())) {
             return error;
         }
@@ -131,10 +139,12 @@ public class Combo {
 
     private List<FoodError> getErrosLanche(final Lanche lanche) {
         List<FoodError> erros = new ArrayList<>();
+
         if (lanche != null) {
             if (categoriaItemNaoPermitida(CategoriaItem.LANCHE, lanche.getCategoria())) {
                 erros.add(ItemError.CATEGORIA_ITEM_LANCHE_INVALIDA);
             }
+
             if (CollectionsUtils.naoVazio(lanche.getComplementos())) {
                 lanche.getComplementos().forEach(complemento -> erros.add(getErro(complemento, CategoriaItem.COMPLEMENTO, ItemError.CATEGORIA_ITEM_COMPLEMENTO_INVALIDA)));
             }
@@ -146,5 +156,4 @@ public class Combo {
     private boolean categoriaItemNaoPermitida(CategoriaItem categoriaEsperada, CategoriaItem categoriaItem) {
         return !categoriaEsperada.equals(categoriaItem);
     }
-
 }
