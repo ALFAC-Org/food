@@ -48,6 +48,36 @@ public abstract class PedidoHelper {
         );
     }
 
+    public static Pedido criarPedidoRecebido() throws FoodException {
+        return new Pedido(
+                1L,
+                null,
+                StatusPedido.RECEBIDO,
+                List.of(ComboHelper.criarCombo()),
+                LocalDateTime.now()
+        );
+    }
+
+    public static Pedido criarPedidoCancelado() throws FoodException {
+        return new Pedido(
+                1L,
+                null,
+                StatusPedido.CANCELADO,
+                List.of(ComboHelper.criarCombo()),
+                LocalDateTime.now()
+        );
+    }
+
+    public static Pedido criarPedidoFinalizado() throws FoodException {
+        return new Pedido(
+                1L,
+                null,
+                StatusPedido.FINALIZADO,
+                List.of(ComboHelper.criarCombo()),
+                LocalDateTime.now()
+        );
+    }
+
     public static Pedido criarPedidoComCliente() throws FoodException {
         return new Pedido(
                 1L,
