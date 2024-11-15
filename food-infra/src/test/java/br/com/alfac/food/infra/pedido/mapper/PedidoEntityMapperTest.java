@@ -34,27 +34,6 @@ public class PedidoEntityMapperTest {
         mapper = Mappers.getMapper(PedidoEntityMapper.class);
     }
 
-    // @Test
-    // public void testToEntity() throws FoodException {
-    //     Pedido pedido = PedidoHelper.criarPedidoComCliente();
-
-    //     ClienteEntity cliente = new ClienteEntity();
-    //     cliente.setId(1L);
-    //     cliente.setUuid(UUID.randomUUID());
-    //     cliente.setCpf("12345678901");
-    //     cliente.setNome("John Doe");
-    //     cliente.setEmail("john@doe.com");
-        
-    //     when(clienteEntityMapper.toEntity(pedido.getCliente())).thenReturn(cliente);
-
-    //     PedidoEntity pedidoEntity = mapper.toEntity(pedido);
-
-    //     assertNotNull(pedidoEntity);
-    //     assertEquals(pedido.getId(), pedidoEntity.getId());
-    //     assertEquals(pedido.getStatus(), pedidoEntity.getStatus());
-    //     assertEquals(pedido.getCombos().size(), pedidoEntity.getCombos().size());
-    // }
-
     @Test
     public void testToDomain() throws FoodException {
         PedidoEntity pedidoEntity = new PedidoEntity();
