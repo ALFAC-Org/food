@@ -24,14 +24,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Generated;
 import jakarta.validation.Valid;
 
 
 /**
  Classe responsável para demonstração da implementação da inversão de dependencia do repository
  */
-@@javax.annotation.processing.Generated("jacoco")
+@javax.annotation.processing.Generated("jacoco")
 @RestController
 @RequestMapping("/api/v2/clientes")
 @Tag(name = "Cliente", description = "Métodos para manipulação de clientes")

@@ -14,10 +14,9 @@ import br.com.alfac.food.core.domain.item.Item;
 import br.com.alfac.food.infra.item.mapper.ItemEntityMapper;
 import br.com.alfac.food.infra.item.persistence.ItemEntity;
 import br.com.alfac.food.infra.item.persistence.ItemEntityRepository;
-import jakarta.annotation.Generated;
 import jakarta.persistence.EntityNotFoundException;
 
-@@javax.annotation.processing.Generated("jacoco")
+@javax.annotation.processing.Generated("jacoco")
 @Component
 public class RepositorioItemGatewayImpl implements RepositorioItemGateway {
 

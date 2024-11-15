@@ -6,9 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import jakarta.annotation.Generated;
-
-@@javax.annotation.processing.Generated("jacoco")
+@javax.annotation.processing.Generated("jacoco")
 @Repository
 public interface ClienteEntityRepository extends JpaRepository<ClienteEntity, Long> {
 
