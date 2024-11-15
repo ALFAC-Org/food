@@ -1,5 +1,11 @@
 package br.com.alfac.food.infra.pedido.gateways;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.alfac.food.core.application.pedido.adapters.gateways.RepositorioPedidoGateway;
 import br.com.alfac.food.core.domain.pedido.Pedido;
 import br.com.alfac.food.core.domain.pedido.StatusPedido;
@@ -7,11 +13,6 @@ import br.com.alfac.food.core.exception.FoodException;
 import br.com.alfac.food.infra.pedido.mapper.PedidoEntityMapper;
 import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
 import br.com.alfac.food.infra.pedido.persistence.PedidoEntityRepository;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class RepositorioPedidoGatewayImpl implements RepositorioPedidoGateway {
