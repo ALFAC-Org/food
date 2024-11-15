@@ -1,12 +1,20 @@
 package br.com.alfac.food.infra.item.persistence;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+
 import br.com.alfac.food.core.domain.item.CategoriaItem;
-import jakarta.persistence.*;
+import jakarta.annotation.Generated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "item")

@@ -1,15 +1,18 @@
 package br.com.alfac.food.infra.cliente.gateways;
 
-import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioClienteGateway;
-import br.com.alfac.food.core.domain.cliente.Cliente;
-import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
-import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+
+import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioClienteGateway;
+import br.com.alfac.food.core.domain.cliente.Cliente;
+import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
+import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
+import jakarta.annotation.Generated;
+
 
 @Component
 public class RepositorioClienteGatewayMemoria implements RepositorioClienteGateway {

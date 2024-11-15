@@ -1,12 +1,19 @@
 package br.com.alfac.food.infra.cliente.persistence;
 
-import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-
 import java.io.Serializable;
 import java.util.Set;
 import java.util.UUID;
+
+import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
+import jakarta.annotation.Generated;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
+
 
 @Entity
 @Table(name = "cliente")

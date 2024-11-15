@@ -1,10 +1,13 @@
 package br.com.alfac.food.infra.cliente.persistence;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.UUID;
+import jakarta.annotation.Generated;
+
 
 @Repository
 public interface ClienteEntityRepository extends JpaRepository<ClienteEntity, Long> {

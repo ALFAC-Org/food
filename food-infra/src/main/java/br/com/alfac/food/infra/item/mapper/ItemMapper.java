@@ -5,6 +5,8 @@ import org.mapstruct.factory.Mappers;
 
 import br.com.alfac.food.infra.item.dto.ItemRequest;
 import br.com.alfac.food.core.application.item.dto.ItemDTO;
+import jakarta.annotation.Generated;
+
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
