@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import br.com.alfac.food.core.domain.item.CategoriaItem;
+import jakarta.annotation.Generated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,7 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Entity
 @Table(name = "item")
 public class ItemEntity implements Serializable {

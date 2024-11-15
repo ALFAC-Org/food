@@ -11,8 +11,9 @@ import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioC
 import br.com.alfac.food.core.domain.cliente.Cliente;
 import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
+import jakarta.annotation.Generated;
 
-@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Component
 public class RepositorioClienteGatewayMemoria implements RepositorioClienteGateway {
 

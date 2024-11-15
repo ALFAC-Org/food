@@ -10,8 +10,9 @@ import br.com.alfac.food.core.domain.cliente.Cliente;
 import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntityRepository;
+import jakarta.annotation.Generated;
 
-@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Component
 public class RepositorioClienteMySQLGatewayImpl implements RepositorioClienteGateway {
     

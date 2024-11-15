@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
+import jakarta.annotation.Generated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,7 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 
-@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Entity
 @Table(name = "cliente")
 public class ClienteEntity implements Serializable {

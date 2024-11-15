@@ -4,8 +4,9 @@ import org.mapstruct.Mapper;
 
 import br.com.alfac.food.core.domain.item.Item;
 import br.com.alfac.food.infra.item.persistence.ItemEntity;
+import jakarta.annotation.Generated;
 
-@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Mapper(componentModel = "spring")
 public interface ItemEntityMapper {
 

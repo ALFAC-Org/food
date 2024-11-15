@@ -5,8 +5,9 @@ import org.mapstruct.factory.Mappers;
 
 import br.com.alfac.food.infra.item.dto.ItemRequest;
 import br.com.alfac.food.core.application.item.dto.ItemDTO;
+import jakarta.annotation.Generated;
 
-@javax.annotation.processing.@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 

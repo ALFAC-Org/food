@@ -6,7 +6,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@javax.annotation.processing.Generated("jacoco")
+import jakarta.annotation.Generated;
+
+@Generated("coverageIgnore")
 @Repository
 public interface ClienteEntityRepository extends JpaRepository<ClienteEntity, Long> {
 

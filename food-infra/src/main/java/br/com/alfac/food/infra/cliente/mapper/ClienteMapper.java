@@ -6,7 +6,7 @@ import br.com.alfac.food.core.application.cliente.dto.ClienteDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@javax.annotation.processing.Generated("jacoco")
+@Generated("coverageIgnore")
 @Mapper(componentModel = "spring")
 public interface ClienteMapper {
 
