@@ -14,7 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 
-@Generated("coverageIgnore")
+
 @Entity
 @Table(name = "cliente")
 public class ClienteEntity implements Serializable {

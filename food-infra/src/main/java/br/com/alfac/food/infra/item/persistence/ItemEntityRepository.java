@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import br.com.alfac.food.core.domain.item.CategoriaItem;
 import jakarta.annotation.Generated;
 
-@Generated("coverageIgnore")
+
 @Repository
 public interface ItemEntityRepository extends JpaRepository<ItemEntity, Long> {
 

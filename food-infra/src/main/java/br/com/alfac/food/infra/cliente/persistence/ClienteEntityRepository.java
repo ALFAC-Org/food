@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.annotation.Generated;
 
-@Generated("coverageIgnore")
+
 @Repository
 public interface ClienteEntityRepository extends JpaRepository<ClienteEntity, Long> {
 

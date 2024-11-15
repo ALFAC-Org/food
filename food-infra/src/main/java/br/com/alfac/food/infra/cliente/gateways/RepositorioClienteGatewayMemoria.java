@@ -13,7 +13,7 @@ import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
 import jakarta.annotation.Generated;
 
-@Generated("coverageIgnore")
+
 @Component
 public class RepositorioClienteGatewayMemoria implements RepositorioClienteGateway {
 

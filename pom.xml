@@ -86,7 +86,8 @@
                                 <include>**/*.class</include>
                             </includes>
                             <excludes>
-                                <exclude>*</exclude>
+                                <exclude>br/com/alfac/food/infra/cliente</exclude>
+                                <exclude>br/com/alfac/food/infra/item</exclude>
                             </excludes>
                         </configuration>
                     </execution>

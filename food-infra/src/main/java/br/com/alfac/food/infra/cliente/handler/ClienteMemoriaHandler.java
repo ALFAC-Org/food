@@ -30,7 +30,7 @@ import jakarta.validation.Valid;
 /**
  Classe responsável para demonstração da implementação da inversão de dependencia do repository
  */
-@Generated("coverageIgnore")
+
 @RestController
 @RequestMapping("/api/v2/clientes")
 @Tag(name = "Cliente", description = "Métodos para manipulação de clientes")

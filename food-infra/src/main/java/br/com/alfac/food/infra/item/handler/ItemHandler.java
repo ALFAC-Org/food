@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Generated;
 
-@Generated("coverageIgnore")
+
 @RestController
 @RequestMapping("/api/v1/itens")
 @Tag(name = "Item", description = "Métodos para manipulação de itens (LANCHE, COMPLEMENTO, ACOMPANHAMENTO, BEBIDA, SOBREMESA...)")

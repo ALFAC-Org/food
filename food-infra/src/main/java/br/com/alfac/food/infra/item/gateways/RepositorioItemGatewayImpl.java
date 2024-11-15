@@ -17,7 +17,7 @@ import br.com.alfac.food.infra.item.persistence.ItemEntityRepository;
 import jakarta.annotation.Generated;
 import jakarta.persistence.EntityNotFoundException;
 
-@Generated("coverageIgnore")
+
 @Component
 public class RepositorioItemGatewayImpl implements RepositorioItemGateway {
 

@@ -7,7 +7,7 @@ import br.com.alfac.food.infra.item.dto.ItemRequest;
 import br.com.alfac.food.core.application.item.dto.ItemDTO;
 import jakarta.annotation.Generated;
 
-@Generated("coverageIgnore")
+
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 
