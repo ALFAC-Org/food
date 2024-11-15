@@ -8,7 +8,7 @@ import br.com.alfac.food.core.domain.cliente.Cliente;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
 import jakarta.annotation.Generated;
 
-@Generated("jacoco")
+@@javax.annotation.processing.Generated("jacoco")
 @Mapper(componentModel = "spring")
 public interface ClienteEntityMapper {
 

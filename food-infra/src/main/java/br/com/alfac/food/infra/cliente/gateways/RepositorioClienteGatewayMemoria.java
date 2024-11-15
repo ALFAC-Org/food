@@ -4,6 +4,8 @@ import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioC
 import br.com.alfac.food.core.domain.cliente.Cliente;
 import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
+import jakarta.annotation.Generated;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@@javax.annotation.processing.Generated("jacoco")
 @Component
 public class RepositorioClienteGatewayMemoria implements RepositorioClienteGateway {
 

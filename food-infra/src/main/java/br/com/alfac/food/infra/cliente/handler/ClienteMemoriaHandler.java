@@ -31,7 +31,7 @@ import jakarta.validation.Valid;
 /**
  Classe responsável para demonstração da implementação da inversão de dependencia do repository
  */
-@Generated("jacoco")
+@@javax.annotation.processing.Generated("jacoco")
 @RestController
 @RequestMapping("/api/v2/clientes")
 @Tag(name = "Cliente", description = "Métodos para manipulação de clientes")

@@ -12,7 +12,7 @@ import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
 import br.com.alfac.food.infra.cliente.persistence.ClienteEntityRepository;
 import jakarta.annotation.Generated;
 
-@Generated("jacoco")
+@@javax.annotation.processing.Generated("jacoco")
 @Component
 public class RepositorioClienteMySQLGatewayImpl implements RepositorioClienteGateway {
     

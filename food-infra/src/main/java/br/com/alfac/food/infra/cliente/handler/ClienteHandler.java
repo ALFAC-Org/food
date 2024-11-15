@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Generated;
 import jakarta.validation.Valid;
 
-@Generated("jacoco")
+@@javax.annotation.processing.Generated("jacoco")
 @RestController
 @RequestMapping("/api/v1/clientes")
 @Tag(name = "Cliente", description = "Métodos para manipulação de clientes")
