@@ -13,8 +13,7 @@ jobs:
     name: Coverage
     uses: ALFAC-Org/github-workflows/.github/workflows/coverage.yaml@main  
     secrets: inherit
-    permissions:
-      actions: write
+    permissions: write-all
     with:
       java_version: "17"
       minimum_coverage: "0"
