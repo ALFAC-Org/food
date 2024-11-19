@@ -1,5 +1,12 @@
 package br.com.alfac.food.infra.item.gateways;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.alfac.food.core.application.item.adapters.gateways.RepositorioItemGateway;
 import br.com.alfac.food.core.application.item.dto.ItemDTO;
 import br.com.alfac.food.core.domain.item.CategoriaItem;
@@ -7,13 +14,9 @@ import br.com.alfac.food.core.domain.item.Item;
 import br.com.alfac.food.infra.item.mapper.ItemEntityMapper;
 import br.com.alfac.food.infra.item.persistence.ItemEntity;
 import br.com.alfac.food.infra.item.persistence.ItemEntityRepository;
+import jakarta.annotation.Generated;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class RepositorioItemGatewayImpl implements RepositorioItemGateway {

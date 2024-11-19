@@ -18,17 +18,9 @@ public class PedidoUseCase {
     public PedidoUseCase(
             final RepositorioPedidoGateway pedidoRepository) {
         this.pedidoRepository = pedidoRepository;
-
     }
 
-
-
-
-
-
-
-
-    public List<PedidoDTO> listarPedidosPorStatus(final StatusPedido status)  {
+    public List<PedidoDTO> listarPedidosPorStatus(final StatusPedido status) {
 
         List<Pedido> pedidos = pedidoRepository.listarPedidosPorStatus(status);
 

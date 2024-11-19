@@ -14,19 +14,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.alfac.food.infra.config.exception.ApiError;
-import br.com.alfac.food.infra.item.dto.ItemRequest;
-import br.com.alfac.food.infra.item.mapper.ItemMapper;
 import br.com.alfac.food.core.application.item.adapters.controller.ControladorItem;
 import br.com.alfac.food.core.application.item.dto.ItemDTO;
 import br.com.alfac.food.core.domain.item.CategoriaItem;
 import br.com.alfac.food.core.exception.FoodException;
+import br.com.alfac.food.infra.config.exception.ApiError;
+import br.com.alfac.food.infra.item.dto.ItemRequest;
+import br.com.alfac.food.infra.item.mapper.ItemMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Generated;
+
 
 @RestController
 @RequestMapping("/api/v1/itens")

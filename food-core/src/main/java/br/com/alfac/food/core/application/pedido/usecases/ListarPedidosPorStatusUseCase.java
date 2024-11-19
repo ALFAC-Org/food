@@ -7,16 +7,13 @@ import br.com.alfac.food.core.domain.pedido.StatusPedido;
 import java.util.List;
 
 public class ListarPedidosPorStatusUseCase {
-
     private final RepositorioPedidoGateway pedidoRepository;
 
     public ListarPedidosPorStatusUseCase(final RepositorioPedidoGateway pedidoRepository) {
         this.pedidoRepository = pedidoRepository;
     }
 
-
-    public List<Pedido> executar(final StatusPedido status)  {
+    public List<Pedido> executar(final StatusPedido status) {
         return pedidoRepository.listarPedidosPorStatus(status);
     }
-
 }

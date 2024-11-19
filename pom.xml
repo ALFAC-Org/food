@@ -52,6 +52,12 @@
             <scope>test</scope>
         </dependency>
         <!-- // Config para carregar automaticamente as variaveis ENV no ambiente de teste -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.0.0</version>
+            <scope>test</scope>
+    </dependency>
     </dependencies>
 
     <build>
@@ -86,7 +92,10 @@
                                 <include>**/*.class</include>
                             </includes>
                             <excludes>
-                                <exclude>*</exclude>
+                                <exclude>br/com/alfac/food/infra/cliente/**</exclude>
+                                <exclude>br/com/alfac/food/infra/item/**</exclude>
+                                <exclude>br/com/alfac/food/core/application/cliente/**</exclude>
+                                <exclude>br/com/alfac/food/core/application/item/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>

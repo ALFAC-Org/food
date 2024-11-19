@@ -19,7 +19,6 @@ public class AtualizarStatusPedidoPagamentoProcessadoUseCase {
 
     public AtualizarStatusPedidoPagamentoProcessadoUseCase(final RepositorioPedidoGateway pedidoRepository) {
         this.pedidoRepository = pedidoRepository;
-
     }
 
     public Pedido executar(final Long idPedido, final StatusPagamento statusPagamento) throws FoodException {
@@ -36,8 +35,6 @@ public class AtualizarStatusPedidoPagamentoProcessadoUseCase {
         } else {
             pedido.atualizarStatusRecebido();
         }
-
-
 
         return pedidoRepository.atualizarStatusPedido(pedido.getId(), pedido.getStatus());
     }

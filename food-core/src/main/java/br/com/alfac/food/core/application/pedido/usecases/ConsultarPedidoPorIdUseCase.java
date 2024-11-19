@@ -18,5 +18,4 @@ public class ConsultarPedidoPorIdUseCase {
         Optional<Pedido> pedidoOpt = pedidoRepository.consultarPedidoPorId(id);
         return pedidoOpt.orElseThrow(() -> new FoodException(PedidoErros.PEDIDO_NAO_ENCONTRADO));
     }
-
 }

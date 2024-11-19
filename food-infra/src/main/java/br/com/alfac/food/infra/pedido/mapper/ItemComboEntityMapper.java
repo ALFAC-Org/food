@@ -1,16 +1,17 @@
 package br.com.alfac.food.infra.pedido.mapper;
 
-import br.com.alfac.food.core.domain.item.Item;
-import br.com.alfac.food.core.domain.pedido.Lanche;
-import br.com.alfac.food.infra.pedido.persistence.ItemComboComplementoEntity;
-import br.com.alfac.food.infra.pedido.persistence.ItemComboEntity;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
-import java.util.List;
+import br.com.alfac.food.core.domain.item.Item;
+import br.com.alfac.food.core.domain.pedido.Lanche;
+import br.com.alfac.food.infra.pedido.persistence.ItemComboComplementoEntity;
+import br.com.alfac.food.infra.pedido.persistence.ItemComboEntity;
 
 @Mapper(componentModel = "spring")
 public interface ItemComboEntityMapper {

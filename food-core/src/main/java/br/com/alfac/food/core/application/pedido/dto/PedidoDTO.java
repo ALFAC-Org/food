@@ -31,8 +31,6 @@ public class PedidoDTO {
         this.combos = combos;
     }
 
-
-
     public Long getClienteId() {
         return clienteId;
     }

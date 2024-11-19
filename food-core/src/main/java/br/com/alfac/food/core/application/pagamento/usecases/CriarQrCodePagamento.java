@@ -14,8 +14,6 @@ public class CriarQrCodePagamento {
 
 
     public String executar(final Long idPedido) throws FoodException {
-
         return pagamentoClientGateway.gerarQrCode(idPedido);
-
     }
 }
