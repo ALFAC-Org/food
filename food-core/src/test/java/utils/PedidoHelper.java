@@ -14,14 +14,14 @@ public abstract class PedidoHelper {
 
     public static Pedido criarPedido(
             Long id,
-            Cliente cliente,
+            Long clienteId,
             StatusPedido status,
             List<Combo> combo,
             LocalDateTime localDateTime
     ) throws FoodException {
         return new Pedido(
                 id,
-                cliente,
+                clienteId,
                 status,
                 combo,
                 localDateTime
@@ -81,7 +81,7 @@ public abstract class PedidoHelper {
     public static Pedido criarPedidoComCliente() throws FoodException {
         return new Pedido(
                 1L,
-                ClienteHelper.criarCliente(),
+                ClienteHelper.criarCliente().getId(),
                 StatusPedido.AGUARDANDO_PAGAMENTO,
                 List.of(ComboHelper.criarCombo()),
                 LocalDateTime.now()

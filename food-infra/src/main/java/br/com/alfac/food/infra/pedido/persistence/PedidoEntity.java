@@ -1,7 +1,6 @@
 package br.com.alfac.food.infra.pedido.persistence;
 
 import br.com.alfac.food.core.domain.pedido.StatusPedido;
-import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -18,9 +17,9 @@ public class PedidoEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id")
-    private ClienteEntity cliente;
+
+    @Column(name = "id_cliente")
+    private Long clienteId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_pedido")
@@ -43,12 +42,12 @@ public class PedidoEntity implements Serializable {
         this.id = id;
     }
 
-    public ClienteEntity getCliente() {
-        return cliente;
+    public Long getClienteId() {
+        return clienteId;
     }
 
-    public void setCliente(ClienteEntity cliente) {
-        this.cliente = cliente;
+    public void setClienteId(Long cliente) {
+        this.clienteId = cliente;
     }
 
     public StatusPedido getStatus() {

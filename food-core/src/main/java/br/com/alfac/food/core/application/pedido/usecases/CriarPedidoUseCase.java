@@ -37,17 +37,17 @@ public class CriarPedidoUseCase {
 
     public Pedido executar(PedidoDTO pedidoDTO) throws FoodException {
 
-        Cliente cliente = null;
+        Long clienteId = null;
 
         if (pedidoDTO.getClienteId() != null) {
-            cliente = consultarClientePorIdUseCase.execute(pedidoDTO.getClienteId());
+            clienteId = consultarClientePorIdUseCase.execute(pedidoDTO.getClienteId()).getId();
         }
 
         if (CollectionsUtils.vazio(pedidoDTO.getCombos())) {
             throw new FoodException(ComboError.COMBO_VAZIO);
         }
 
-        Pedido pedido = new Pedido(cliente);
+        Pedido pedido = new Pedido(clienteId);
         for (ComboDTO comboDTO : pedidoDTO.getCombos()) {
             Combo combo = ComboBuilder.combo()
                     .comLanche(buscarLanche(comboDTO.getLanche()))

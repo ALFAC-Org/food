@@ -1,6 +1,6 @@
 package br.com.alfac.food.core.application.pedido.usecases;
 
-import br.com.alfac.food.core.application.cliente.usecases.ConsultarClientePorCpfUseCase;
+
 import br.com.alfac.food.core.application.pedido.adapters.gateways.RepositorioPedidoGateway;
 import br.com.alfac.food.core.domain.pedido.Pedido;
 import br.com.alfac.food.core.exception.FoodException;

@@ -31,9 +31,9 @@ public final class PedidoMapper {
         PedidoDTO pedidoDTO = new PedidoDTO();
         pedidoDTO.setId(pedido.getId());
 
-        Cliente cliente = pedido.getCliente();
-        if (Objects.nonNull(cliente)) {
-            pedidoDTO.setClienteId(cliente.getId());
+        Long clienteId = pedido.getClienteId();
+        if (Objects.nonNull(clienteId)) {
+            pedidoDTO.setClienteId(clienteId);
         }
         pedidoDTO.setStatusPedido(pedido.getStatus());
 

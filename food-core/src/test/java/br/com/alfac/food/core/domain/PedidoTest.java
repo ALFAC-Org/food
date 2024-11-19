@@ -29,7 +29,7 @@ public class PedidoTest {
     @BeforeEach
     public void setUp() {
         cliente = new Cliente();
-        pedido = new Pedido(cliente);
+        pedido = new Pedido(cliente.getId());
     }
 
     @Nested
@@ -37,7 +37,7 @@ public class PedidoTest {
         @Test
         public void deveLancarExcecaoQuandoIdForNulo() {
             FoodException exception = assertThrows(FoodException.class, () -> {
-                new Pedido(null, new Cliente(), StatusPedido.AGUARDANDO_PAGAMENTO, new ArrayList<>(), LocalDateTime.now());
+                new Pedido(null, new Cliente().getId(), StatusPedido.AGUARDANDO_PAGAMENTO, new ArrayList<>(), LocalDateTime.now());
             });
             assertEquals("Id é obrigatório.", exception.getMessage());
         }
@@ -45,7 +45,7 @@ public class PedidoTest {
         @Test
         public void deveLancarExcecaoQuandoStatusForNulo() {
             FoodException exception = assertThrows(FoodException.class, () -> {
-                new Pedido(1L, new Cliente(), null, new ArrayList<>(), LocalDateTime.now());
+                new Pedido(1L, new Cliente().getId(), null, new ArrayList<>(), LocalDateTime.now());
             });
             assertEquals("Status é obrigatório.", exception.getMessage());
         }
@@ -53,7 +53,7 @@ public class PedidoTest {
         @Test
         public void deveLancarExcecaoQuandoDataCadastroForNula() {
             FoodException exception = assertThrows(FoodException.class, () -> {
-                new Pedido(1L, new Cliente(), StatusPedido.AGUARDANDO_PAGAMENTO, new ArrayList<>(), null);
+                new Pedido(1L, new Cliente().getId(), StatusPedido.AGUARDANDO_PAGAMENTO, new ArrayList<>(), null);
             });
             assertEquals("Data de cadastro é obrigatória.", exception.getMessage());
         }
@@ -103,7 +103,7 @@ public class PedidoTest {
         public void deveLancarExcecaoQuandoTentaAtualizarPedidoCancelado() throws FoodException {
             pedido = PedidoHelper.criarPedidoCancelado();
             FoodException exception = assertThrows(FoodException.class, pedido::atualizarStatusRecebido);
-            assertEquals("Status do pedido cancelado não permite alteração.", exception.getMessage());
+            assertEquals("Status atual do pedido não permite cancelamento.", exception.getMessage());
         }
 
         @Test
@@ -158,7 +158,7 @@ public class PedidoTest {
     class getCliente {
         @Test
         public void deveRetornarCliente() {
-            assertEquals(cliente, pedido.getCliente());
+            assertEquals(cliente.getId(), pedido.getClienteId());
         }
     }
 

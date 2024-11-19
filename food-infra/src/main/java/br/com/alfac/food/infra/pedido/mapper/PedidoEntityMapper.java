@@ -14,7 +14,6 @@ import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +26,7 @@ public interface PedidoEntityMapper {
 
 
     default Pedido toDomain(PedidoEntity pedido) throws FoodException {
-        Cliente cliente = ClienteEntityMapper.INSTANCE.toDomain(pedido.getCliente());
-        return new Pedido(pedido.getId(), cliente, pedido.getStatus(),  combosToDomain(pedido.getCombos()), pedido.getDataCadastro());
+        return new Pedido(pedido.getId(), pedido.getClienteId(), pedido.getStatus(),  combosToDomain(pedido.getCombos()), pedido.getDataCadastro());
     }
 
     List<Pedido> toDomain(List<PedidoEntity> pedido);

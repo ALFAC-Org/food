@@ -7,7 +7,7 @@ import br.com.alfac.food.core.domain.item.Item;
 import br.com.alfac.food.core.domain.pedido.Combo;
 import br.com.alfac.food.core.domain.pedido.Lanche;
 import br.com.alfac.food.core.domain.pedido.Pedido;
-import br.com.alfac.food.infra.cliente.persistence.ClienteEntity;
+
 import br.com.alfac.food.infra.item.persistence.ItemEntity;
 import br.com.alfac.food.infra.pedido.persistence.ComboEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboComplementoEntity;
@@ -20,15 +20,7 @@ public class PedidoEntityHelper {
         List<PedidoEntity> pedidoEntities = new ArrayList<>();
 
         for (Pedido pedido : pedidos) {
-            ClienteEntity clienteEntity = new ClienteEntity();
 
-            if (pedido.getCliente() != null) {
-                clienteEntity.setId(pedido.getCliente().getId());
-                clienteEntity.setNome(pedido.getCliente().getNome());
-                clienteEntity.setCpf(pedido.getCliente().getCpf().getNumero());
-                clienteEntity.setEmail(pedido.getCliente().getEmail());
-                clienteEntity.setUuid(pedido.getCliente().getUuid());
-            }
 
             List<ComboEntity> comboEntities = new ArrayList<>();
             for (Combo combo : pedido.getCombos()) {
@@ -78,7 +70,7 @@ public class PedidoEntityHelper {
 
             PedidoEntity pedidoEntity = new PedidoEntity();
             pedidoEntity.setId(pedido.getId());
-            pedidoEntity.setCliente(clienteEntity);
+            pedidoEntity.setClienteId(pedido.getClienteId());
             pedidoEntity.setStatus(pedido.getStatus());
             pedidoEntity.setCombos(comboEntities);
             pedidoEntity.setDataCadastro(pedido.getDataCadastro());

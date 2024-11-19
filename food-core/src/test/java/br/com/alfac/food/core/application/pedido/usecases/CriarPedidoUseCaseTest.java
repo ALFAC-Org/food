@@ -1,6 +1,8 @@
 package br.com.alfac.food.core.application.pedido.usecases;
 
+import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioClienteGateway;
 import br.com.alfac.food.core.application.cliente.usecases.ConsultarClientePorIdUseCase;
+import br.com.alfac.food.core.application.item.adapters.gateways.RepositorioItemGateway;
 import br.com.alfac.food.core.application.item.usecases.ConsultarItemPorIdUseCase;
 import br.com.alfac.food.core.application.pedido.adapters.gateways.RepositorioPedidoGateway;
 import br.com.alfac.food.core.application.pedido.adapters.mappers.PedidoMapper;
@@ -10,9 +12,11 @@ import br.com.alfac.food.core.domain.pedido.Pedido;
 import br.com.alfac.food.core.exception.FoodException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import utils.ClienteHelper;
 import utils.PedidoHelper;
 
 import java.util.HashMap;
@@ -26,6 +30,12 @@ public class CriarPedidoUseCaseTest {
 
     @Mock
     private RepositorioPedidoGateway repositorioPedidoGateway;
+
+    @Mock
+    private RepositorioClienteGateway clienteRepository;
+
+    @Mock
+    private RepositorioItemGateway itemRepository;
 
     @Mock
     private ConsultarClientePorIdUseCase consultarClientePorIdUseCase;
@@ -45,92 +55,94 @@ public class CriarPedidoUseCaseTest {
         mock.close();
     }
 
-    @Test
-    void deveCriarPedidoComCliente() throws FoodException {
-        // Arrange
-        PedidoDTO pedidoDTO = criarPedidoDTO(true);
+    @Nested
+    class QuandoTemCliente {
+        @Test
+        void deveCriarPedidoComCliente() throws FoodException {
+            // Arrange
+            PedidoDTO pedidoDTO = criarPedidoDTO(true);
 
-        // Act
-        Pedido execute = new CriarPedidoUseCase(
-                repositorioPedidoGateway,
-                consultarClientePorIdUseCase,
-                consultarItemPorIdUseCase
-        )
-                .executar(pedidoDTO);
+            // Act
+            Pedido execute = new CriarPedidoUseCase(
+                    repositorioPedidoGateway,
+                    consultarClientePorIdUseCase,
+                    consultarItemPorIdUseCase
+            )
+                    .executar(pedidoDTO);
 
-        // Assert
-        var pedidoRetornado = assertThat(execute)
-                .isInstanceOf(Pedido.class);
+            // Assert
+            var pedidoRetornado = assertThat(execute)
+                    .isInstanceOf(Pedido.class);
 
-        pedidoRetornado
-                .extracting(p -> p.getCliente().getId())
-                .isEqualTo(pedidoDTO.getClienteId());
-    }
-
-    @Test
-    void deveCriarPedidoSemCliente() throws FoodException {
-        // Arrange
-        PedidoDTO pedidoDTO = criarPedidoDTO(false);
-
-        // Act
-        Pedido execute = new CriarPedidoUseCase(
-                repositorioPedidoGateway,
-                consultarClientePorIdUseCase,
-                consultarItemPorIdUseCase
-        )
-                .executar(pedidoDTO);
-
-        // Assert
-        var pedidoRetornado = assertThat(execute)
-                .isInstanceOf(Pedido.class);
-
-        pedidoRetornado
-                .extracting(Pedido::getCliente)
-                .isNull();
-    }
-
-    PedidoDTO criarPedidoDTO(boolean comCliente) throws FoodException {
-        var pedidoComCliente = comCliente ? PedidoHelper.criarPedidoComCliente() : PedidoHelper.criarPedido();
-        var pedidoDTO = PedidoMapper.mapearParaPedidoDTO(pedidoComCliente);
-        var combo = pedidoComCliente.getCombos().get(0);
-        var lanche = combo.getLanche();
-        var lancheComplementos = lanche.getComplementos();
-
-        Map<Long, Item> itemMap = new HashMap<>();
-        itemMap.put(combo.getAcompanhamento().getId(), combo.getAcompanhamento());
-        itemMap.put(lanche.getId(), lanche);
-        itemMap.put(combo.getBebida().getId(), combo.getBebida());
-        itemMap.put(combo.getSobremesa().getId(), combo.getSobremesa());
-        itemMap.put(lancheComplementos.get(0).getId(), lancheComplementos.get(0));
-
-        if (comCliente) {
-            when(consultarClientePorIdUseCase.execute(any(Long.class)))
-                    .thenReturn(pedidoComCliente.getCliente());
+            pedidoRetornado
+                    .extracting(p -> p.getClienteId())
+                    .isEqualTo(pedidoDTO.getClienteId());
         }
 
-        when(repositorioPedidoGateway.registrarPedido(any(Pedido.class)))
-                .thenReturn(pedidoComCliente);
+        @Test
+        void deveCriarPedidoSemCliente() throws FoodException {
+            // Arrange
+            PedidoDTO pedidoDTO = criarPedidoDTO(false);
 
-        when(consultarItemPorIdUseCase.executar(any(Long.class)))
-                .thenAnswer(invocation -> {
-                    Long id = invocation.getArgument(0);
+            // Act
+            Pedido execute = new CriarPedidoUseCase(
+                    repositorioPedidoGateway,
+                    consultarClientePorIdUseCase,
+                    consultarItemPorIdUseCase
+            )
+                    .executar(pedidoDTO);
 
-                    return itemMap.get(id);
-                });
-        when(consultarClientePorIdUseCase.execute(any(Long.class)))
-                .thenReturn(pedidoComCliente.getCliente());
+            // Assert
+            var pedidoRetornado = assertThat(execute)
+                    .isInstanceOf(Pedido.class);
 
-        when(repositorioPedidoGateway.registrarPedido(any(Pedido.class)))
-                .thenReturn(pedidoComCliente);
+            pedidoRetornado
+                    .extracting(Pedido::getClienteId)
+                    .isNull();
+        }
 
-        when(consultarItemPorIdUseCase.executar(any(Long.class)))
-                .thenAnswer(invocation -> {
-                    Long id = invocation.getArgument(0);
+        PedidoDTO criarPedidoDTO(boolean comCliente) throws FoodException {
+            var pedidoComCliente = comCliente ? PedidoHelper.criarPedidoComCliente() : PedidoHelper.criarPedido();
+            var pedidoDTO = PedidoMapper.mapearParaPedidoDTO(pedidoComCliente);
+            var combo = pedidoComCliente.getCombos().get(0);
+            var lanche = combo.getLanche();
+            var lancheComplementos = lanche.getComplementos();
 
-                    return itemMap.get(id);
-                });
+            Map<Long, Item> itemMap = new HashMap<>();
+            itemMap.put(combo.getAcompanhamento().getId(), combo.getAcompanhamento());
+            itemMap.put(lanche.getId(), lanche);
+            itemMap.put(combo.getBebida().getId(), combo.getBebida());
+            itemMap.put(combo.getSobremesa().getId(), combo.getSobremesa());
+            itemMap.put(lancheComplementos.get(0).getId(), lancheComplementos.get(0));
 
-        return pedidoDTO;
+            if (comCliente) {
+                when(consultarClientePorIdUseCase.execute(any(Long.class)))
+                        .thenReturn(ClienteHelper.criarCliente(pedidoComCliente.getId()));
+            }
+
+            when(repositorioPedidoGateway.registrarPedido(any(Pedido.class)))
+                    .thenReturn(pedidoComCliente);
+
+            when(consultarItemPorIdUseCase.executar(any(Long.class)))
+                    .thenAnswer(invocation -> {
+                        Long id = invocation.getArgument(0);
+
+                        return itemMap.get(id);
+                    });
+            when(consultarClientePorIdUseCase.execute(any(Long.class)))
+                    .thenReturn(ClienteHelper.criarCliente(pedidoComCliente.getClienteId()));
+
+            when(repositorioPedidoGateway.registrarPedido(any(Pedido.class)))
+                    .thenReturn(pedidoComCliente);
+
+            when(consultarItemPorIdUseCase.executar(any(Long.class)))
+                    .thenAnswer(invocation -> {
+                        Long id = invocation.getArgument(0);
+
+                        return itemMap.get(id);
+                    });
+
+            return pedidoDTO;
+        }
     }
-
 }

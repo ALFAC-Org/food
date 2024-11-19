@@ -25,6 +25,11 @@ public abstract class ClienteHelper {
     public static Cliente criarCliente() {
         return criarCliente(null, null, null);
     }
+    public static Cliente criarCliente(Long id) {
+        Cliente cliente = criarCliente(null, null, null);
+        cliente.setId(id);
+        return cliente;
+    }
 
     public static Cliente criarCliente(String cpf, String nome, String email) {
         Cliente cliente = new Cliente();
