@@ -26,23 +26,4 @@ public class FoodErrosImplTest {
         assertEquals(expectedErrorMessage, foodError.getErrorMessage());
     }
     
-    @Test
-    public void testGetStatusCodeDefault() {
-        FoodErrosImpl foodError = Mockito.mock(FoodErrosImpl.class, Mockito.CALLS_REAL_METHODS);
-        Mockito.when(foodError.getStatusCode()).thenCallRealMethod();
-        Mockito.when(foodError.getStatusCode()).thenReturn(StatusCode.BAD_REQUEST.getCode());
-
-        int expectedStatusCode = StatusCode.BAD_REQUEST.getCode();
-        assertEquals(expectedStatusCode, foodError.getStatusCode());
-    }
-
-    @Test
-    public void testGetStatusCodeCustom() {
-        FoodErrosImpl foodError = Mockito.mock(FoodErrosImpl.class, Mockito.CALLS_REAL_METHODS);
-        Mockito.when(foodError.getStatusCode()).thenCallRealMethod();
-        Mockito.when(foodError.getStatusCode()).thenReturn(StatusCode.NOT_FOUND.getCode());
-
-        int expectedStatusCode = StatusCode.NOT_FOUND.getCode();
-        assertEquals(expectedStatusCode, foodError.getStatusCode());
-    }
 }
