@@ -109,10 +109,19 @@ jobs:
           override: false # prevent overriding IMAGE_VERSION -> don't create the env variables
           file: food-cloud-infra/.env
 
-      # - name: Get RDS endpoint
-      #   run: |
-      #     DB_HOST=$(aws rds describe-db-instances --db-instance-identifier ${{ secrets.DB_IDENTIFIER }} --query "DBInstances[0].Endpoint.Address" --output text)
-      #     echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Get RDS endpoint
+        continue-on-error: true # if the DB is not set, we skip the remaining steps
+        run: |
+          DB_HOST=$(aws rds describe-db-instances --db-instance-identifier ${{ secrets.DB_IDENTIFIER }} --query "DBInstances[0].Endpoint.Address" --output text)
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
 
       - name: Overwrite .env variable
         run: |
