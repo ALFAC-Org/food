@@ -1,0 +1,4390 @@
+{
+	"info": {
+		"_postman_id": "0c5d2c80-e299-44a6-907b-02c23b42b825",
+		"name": "API - Aplicação Fast Food - ALFAC",
+		"description": "API para manipulação de pedidos, itens e clientes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "37255717-0c5d2c80-e299-44a6-907b-02c23b42b825"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "pedidos",
+							"item": [
+								{
+									"name": "{id}",
+									"item": [
+										{
+											"name": "atualizar-status",
+											"item": [
+												{
+													"name": "[PEDIDOS] Atualizar status do pedido (de modo sequencial)",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"id": "cdcf9c32-4c65-4c28-9193-14d90ff5a3af",
+																"exec": [
+																	"// 1° cadastra o pedido",
+																	"const salvaPedido = async () => new Promise((resolve, reject) => {",
+																	"    const body = {",
+																	"        \"clienteId\": 1,",
+																	"        \"combos\": [",
+																	"            {",
+																	"                \"lanche\": {",
+																	"                    \"id\": 1,",
+																	"                    \"complementos\": [",
+																	"                        {",
+																	"                            \"id\": 6",
+																	"                        }",
+																	"                    ],",
+																	"                    \"observacoes\": \"Capricha no queijo!\"",
+																	"                },",
+																	"                \"acompanhamento\": {",
+																	"                    \"id\": 8",
+																	"                },",
+																	"                \"bebida\": {",
+																	"                    \"id\": 11",
+																	"                },",
+																	"                \"sobremesa\": {",
+																	"                    \"id\": 14",
+																	"                }",
+																	"            }",
+																	"        ]",
+																	"    };",
+																	"",
+																	"    pm.sendRequest({",
+																	"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos\",",
+																	"        method: 'POST',",
+																	"        header: {",
+																	"            'Content-Type': 'application/json'",
+																	"        },",
+																	"        body: {",
+																	"            mode: 'raw',",
+																	"            raw: JSON.stringify(body)",
+																	"        }",
+																	"    }, function (err, resPedido) {",
+																	"        if (err) {",
+																	"            reject(err)",
+																	"        } else {",
+																	"            const pedidoResponse = resPedido.json()",
+																	"            resolve(pedidoResponse)",
+																	"        }",
+																	"    });",
+																	"});",
+																	"",
+																	"// 2° aprova o pagamento",
+																	"const aprovaPagamento = async (pedidoId) => new Promise((resolve, reject) => {",
+																	"    pm.sendRequest({",
+																	"        url: pm.environment.get(\"baseUrl\") + \"/wh/v1/pagamentos\",",
+																	"        method: 'POST',",
+																	"        header: {",
+																	"            'Content-Type': 'application/json'",
+																	"        },",
+																	"        body: {",
+																	"            mode: 'raw',",
+																	"            raw: JSON.stringify({",
+																	"                \"pagamentoId\": pedidoId,",
+																	"                \"statusConfirmacaoPagamento\": \"APROVADO\"",
+																	"            })",
+																	"        }",
+																	"    }, function (err, res) {",
+																	"        if (err) {",
+																	"            reject(err)",
+																	"        } else {",
+																	"            resolve(res)",
+																	"        }",
+																	"    });",
+																	"});",
+																	"",
+																	"// 3 ° Atualiza o pedido",
+																	"const atualizaPedido = async (pedidoId) => new Promise((resolve, reject) => {",
+																	"    pm.sendRequest({",
+																	"        url: `${pm.environment.get(\"baseUrl\")}/api/v1/pedidos/${pedidoId}/atualizar-status`,",
+																	"        method: 'PUT',",
+																	"        header: {",
+																	"            'Content-Type': 'application/json'",
+																	"        }",
+																	"    }, function (err, resPedido) {",
+																	"        if (err) {",
+																	"            reject(err)",
+																	"        } else {",
+																	"            const pedidoResponse = resPedido.json()",
+																	"            resolve(pedidoResponse)",
+																	"        }",
+																	"    });",
+																	"});",
+																	"",
+																	"const STATUS_PEDIDO = {",
+																	"    // AGUARDANDO_PAGAMENTO: 'AGUARDANDO_PAGAMENTO', // Todo pedido começa com AGUARDANDO_PAGAMENTO",
+																	"    // RECEBIDO: 'RECEBIDO', // Uma vez o pedido pago, ele vira recebido. Sendo assim, só restam os demais status",
+																	"    EM_PREPARACAO: 'EM_PREPARACAO',",
+																	"    PRONTO: 'PRONTO',",
+																	"    FINALIZADO: 'FINALIZADO'",
+																	"    // CANCELADO: 'CANCELADO'",
+																	"};",
+																	"",
+																	"pm.test(\"1 - Salva pedido | 2. Aprova o pagamento | 3 - Atualiza por status\", async function () {",
+																	"",
+																	"    console.info(`[ATUALIZAR STATUS DO PEDIDO] Salvando pedido para...`)",
+																	"",
+																	"    salvaPedido().then(async (pedidoResponse) => {",
+																	"        const pedidoId = pedidoResponse.pedido.id",
+																	"",
+																	"        console.info(`[ATUALIZAR STATUS DO PEDIDO] Pedido salvo com pedidoId=${pedidoId}`)",
+																	"",
+																	"        try {",
+																	"            await aprovaPagamento(pedidoId)",
+																	"",
+																	"            console.info(`[ATUALIZAR STATUS DO PEDIDO] Pagamento aprovado para pedidoId=${pedidoId}`)",
+																	"",
+																	"            return Promise.resolve(pedidoId)",
+																	"        } catch (err) {",
+																	"            console.error(`[ATUALIZAR STATUS DO PEDIDO] Erro ao aprovar pagamento para pedidoId=${pedidoId}`, err)",
+																	"",
+																	"            return Promise.reject(err)",
+																	"        }",
+																	"    })",
+																	"        .then(async (pedidoId) => {",
+																	"            console.log(`[ATUALIZAR STATUS DO PEDIDO] Percorrendo lista de status para pedidoId=${pedidoId}`)",
+																	"",
+																	"            const statusKeys = Object.keys(STATUS_PEDIDO);",
+																	"",
+																	"            for await (const key of statusKeys) {",
+																	"                const currentStatus = STATUS_PEDIDO[key];",
+																	"",
+																	"                console.info(`[ATUALIZAR STATUS DO PEDIDO] Começando atualizar status do pedidoId=${pedidoId} para ${currentStatus}`);",
+																	"",
+																	"                try {",
+																	"                    const atualizaPedidoStatus = await atualizaPedido(pedidoId);",
+																	"",
+																	"                    console.info(`[ATUALIZAR STATUS DO PEDIDO] Pedido pedidoId=${pedidoId} atualizado para ${currentStatus}`);",
+																	"",
+																	"                    pm.expect(atualizaPedidoStatus.statusPedido).to.eq(currentStatus);",
+																	"                } catch (err) {",
+																	"                    throw new Error(`[ATUALIZAR STATUS DO PEDIDO] Erro ao atualizar status do pedidoId=${pedidoId} para ${currentStatus}: ${err}`);",
+																	"                }",
+																	"            }",
+																	"        })",
+																	"        .catch((pedidoErr) => {",
+																	"            throw new Error(`[ATUALIZAR STATUS DO PEDIDO] Erro ao salvar pedido: ${pedidoErr}`);",
+																	"        });",
+																	"});"
+																],
+																"type": "text/javascript",
+																"packages": {}
+															}
+														}
+													],
+													"id": "562057a4-6288-4195-bd69-7bd1cc4fe528",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "PUT",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/pedidos/:id/atualizar-status",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"pedidos",
+																":id",
+																"atualizar-status"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"response": [
+														{
+															"id": "22c2f8c9-821b-484a-9a69-a9ad11ce45c0",
+															"name": "OK",
+															"originalRequest": {
+																"method": "PUT",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/pedidos/:id/atualizar-status",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"pedidos",
+																		":id",
+																		"atualizar-status"
+																	],
+																	"variable": [
+																		{
+																			"key": "id",
+																			"value": "<long>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"combos\": [\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"complementos\": [\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"LANCHE\"\n          },\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"SOBREMESA\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"COMPLEMENTO\"\n      },\n      \"bebida\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"ACOMPANHAMENTO\"\n      },\n      \"sobremesa\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"SOBREMESA\"\n      },\n      \"valorTotal\": \"<number>\"\n    },\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"SOBREMESA\",\n        \"complementos\": [\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"BEBIDA\"\n          },\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"LANCHE\"\n      },\n      \"bebida\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"COMPLEMENTO\"\n      },\n      \"sobremesa\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"BEBIDA\"\n      },\n      \"valorTotal\": \"<number>\"\n    }\n  ],\n  \"clienteId\": \"<long>\",\n  \"id\": \"<long>\",\n  \"statusPedido\": \"RECEBIDO\",\n  \"valorTotal\": \"<number>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "391c848a-ebaf-4a92-b832-8b8aaff94708"
+										},
+										{
+											"name": "[PEDIDOS] Consultar pedido por pedido id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"id": "31d054df-6901-4b1f-b61a-f60a2cbbf7d1",
+														"exec": [
+															"const validSchema = {",
+															"    \"type\": \"object\",",
+															"    \"properties\": {",
+															"        \"combos\": {",
+															"            \"type\": \"array\",",
+															"            \"items\": {",
+															"                \"type\": \"object\",",
+															"                \"properties\": {",
+															"                    \"lanche\": {",
+															"                        \"type\": \"object\",",
+															"                        \"properties\": {",
+															"                            \"id\": {",
+															"                                \"type\": \"integer\"",
+															"                            },",
+															"                            \"nome\": {",
+															"                                \"type\": \"string\"",
+															"                            },",
+															"                            \"preco\": {",
+															"                                \"type\": \"number\"",
+															"                            },",
+															"                            \"categoria\": {",
+															"                                \"type\": \"string\"",
+															"                            },",
+															"                            \"complementos\": {",
+															"                                \"type\": \"array\",",
+															"                                \"items\": {",
+															"                                    \"type\": \"object\",",
+															"                                    \"properties\": {",
+															"                                        \"id\": {",
+															"                                            \"type\": \"integer\"",
+															"                                        },",
+															"                                        \"preco\": {",
+															"                                            \"type\": \"number\"",
+															"                                        }",
+															"                                    },",
+															"                                    \"required\": [\"id\", \"preco\"]",
+															"                                }",
+															"                            },",
+															"                            \"observacoes\": {",
+															"                                \"type\": \"string\"",
+															"                            }",
+															"                        },",
+															"                        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\", \"complementos\"]",
+															"                    },",
+															"                    \"acompanhamento\": {",
+															"                        \"type\": \"object\",",
+															"                        \"properties\": {",
+															"                            \"id\": {",
+															"                                \"type\": \"integer\"",
+															"                            },",
+															"                            \"nome\": {",
+															"                                \"type\": \"string\"",
+															"                            },",
+															"                            \"preco\": {",
+															"                                \"type\": \"number\"",
+															"                            },",
+															"                            \"categoria\": {",
+															"                                \"type\": \"string\"",
+															"                            }",
+															"                        },",
+															"                        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+															"                    },",
+															"                    \"bebida\": {",
+															"                        \"type\": \"object\",",
+															"                        \"properties\": {",
+															"                            \"id\": {",
+															"                                \"type\": \"integer\"",
+															"                            },",
+															"                            \"nome\": {",
+															"                                \"type\": \"string\"",
+															"                            },",
+															"                            \"preco\": {",
+															"                                \"type\": \"number\"",
+															"                            },",
+															"                            \"categoria\": {",
+															"                                \"type\": \"string\"",
+															"                            }",
+															"                        },",
+															"                        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+															"                    },",
+															"                    \"sobremesa\": {",
+															"                        \"type\": \"object\",",
+															"                        \"properties\": {",
+															"                            \"id\": {",
+															"                                \"type\": \"integer\"",
+															"                            },",
+															"                            \"nome\": {",
+															"                                \"type\": \"string\"",
+															"                            },",
+															"                            \"preco\": {",
+															"                                \"type\": \"number\"",
+															"                            },",
+															"                            \"categoria\": {",
+															"                                \"type\": \"string\"",
+															"                            }",
+															"                        },",
+															"                        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+															"                    }",
+															"                },",
+															"                \"required\": [\"lanche\", \"acompanhamento\", \"bebida\", \"sobremesa\"]",
+															"            }",
+															"        },",
+															"        \"clienteId\": {",
+															"            \"type\": \"integer\"",
+															"        },",
+															"        \"id\": {",
+															"            \"type\": \"integer\"",
+															"        },",
+															"        \"statusPedido\": {",
+															"            \"type\": \"string\"",
+															"        },",
+															"        \"valorTotal\": {",
+															"            \"type\": \"number\"",
+															"        }",
+															"    },",
+															"    \"required\": [\"combos\", \"clienteId\", \"id\", \"statusPedido\", \"valorTotal\"]",
+															"    // \"qrCodePagamento\": {",
+															"    //     \"type\": \"string\"",
+															"    // }",
+															"    // \"required\": [\"pedido\", \"qrCodePagamento\"]",
+															"};",
+															"",
+															"pm.test(\"Retorna pedido completo\", function () {",
+															"    pm.sendRequest({",
+															"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos/1\",",
+															"        method: 'GET'",
+															"    }, function (err, res) {",
+															"        pm.expect(res).to.have.status(200);",
+															"        pm.expect(res).to.be.json;",
+															"        pm.expect(res).to.have.jsonSchema(validSchema);",
+															"    });",
+															"});",
+															"",
+															"pm.test(\"Código de status é 404 quando pedido não é encontrado\", function () {",
+															"    pm.sendRequest({",
+															"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos/0\",",
+															"        method: 'GET'",
+															"    }, function (err, res) {",
+															"        pm.expect(res).to.have.status(404);",
+															"    });",
+															"});"
+														],
+														"type": "text/javascript",
+														"packages": {}
+													}
+												}
+											],
+											"id": "9b9c18c6-4ae2-4200-99f8-22404906d8d4",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/pedidos/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"pedidos",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"id": "f8c02793-701c-4b2f-baec-f73cfbd03c9c",
+													"name": "OK",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/pedidos/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"pedidos",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"combos\": [\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"complementos\": [\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"LANCHE\"\n          },\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"SOBREMESA\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"COMPLEMENTO\"\n      },\n      \"bebida\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"ACOMPANHAMENTO\"\n      },\n      \"sobremesa\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"SOBREMESA\"\n      },\n      \"valorTotal\": \"<number>\"\n    },\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"SOBREMESA\",\n        \"complementos\": [\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"BEBIDA\"\n          },\n          {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"LANCHE\"\n      },\n      \"bebida\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"COMPLEMENTO\"\n      },\n      \"sobremesa\": {\n        \"id\": \"<long>\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<number>\",\n        \"categoria\": \"BEBIDA\"\n      },\n      \"valorTotal\": \"<number>\"\n    }\n  ],\n  \"clienteId\": \"<long>\",\n  \"id\": \"<long>\",\n  \"statusPedido\": \"RECEBIDO\",\n  \"valorTotal\": \"<number>\"\n}"
+												}
+											]
+										}
+									],
+									"id": "63bb40ef-e863-4250-a2ef-6728013e153d"
+								},
+								{
+									"name": "status",
+									"item": [
+										{
+											"name": "{status}",
+											"item": [
+												{
+													"name": "[PEDIDOS] Consultar pedidos por status",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"id": "531127a7-96fc-432d-b920-1951570056b0",
+																"exec": [
+																	"pm.test(\"1° Cadastra pedido | 2° Lista por status 'AGUARDANDO_PAGAMENTO\", async function () {",
+																	"    const salvaPedido = async () => new Promise((resolve, reject) => {",
+																	"        const body = {",
+																	"            \"clienteId\": 1,",
+																	"            \"combos\": [",
+																	"                {",
+																	"                    \"lanche\": {",
+																	"                        \"id\": 1,",
+																	"                        \"complementos\": [",
+																	"                            {",
+																	"                                \"id\": 6",
+																	"                            }",
+																	"                        ],",
+																	"                        \"observacoes\": \"Capricha no queijo!\"",
+																	"                    },",
+																	"                    \"acompanhamento\": {",
+																	"                        \"id\": 8",
+																	"                    },",
+																	"                    \"bebida\": {",
+																	"                        \"id\": 11",
+																	"                    },",
+																	"                    \"sobremesa\": {",
+																	"                        \"id\": 14",
+																	"                    }",
+																	"                }",
+																	"            ]",
+																	"        };",
+																	"",
+																	"        pm.sendRequest({",
+																	"            url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos\",",
+																	"            method: 'POST',",
+																	"            header: {",
+																	"                'Content-Type': 'application/json'",
+																	"            },",
+																	"            body: {",
+																	"                mode: 'raw',",
+																	"                raw: JSON.stringify(body)",
+																	"            }",
+																	"        }, function (err, resPedido) {",
+																	"            if (err) {",
+																	"                reject(err)",
+																	"            } else {",
+																	"                const pedidoResponse = resPedido.json()",
+																	"                resolve(pedidoResponse)",
+																	"            }",
+																	"        });",
+																	"    });",
+																	"",
+																	"    const listaPedidos = async (status) => new Promise((resolve, reject) => {",
+																	"        pm.sendRequest({",
+																	"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/pedidos/status/${status}`,",
+																	"            method: 'GET'",
+																	"        }, function (err, response) {",
+																	"            if (err) {",
+																	"                reject(err)",
+																	"            } else {",
+																	"                resolve({ response, data: response.json() })",
+																	"            }",
+																	"        });",
+																	"    });",
+																	"",
+																	"    const validSchema = {",
+																	"        \"type\": \"object\",",
+																	"        \"properties\": {",
+																	"            \"pedidos\": {",
+																	"                \"type\": \"array\",",
+																	"                \"properties\": {",
+																	"                    \"combos\": {",
+																	"                        \"type\": \"array\",",
+																	"                        \"items\": {",
+																	"                            \"type\": \"object\",",
+																	"                            \"properties\": {",
+																	"                                \"lanche\": {",
+																	"                                    \"type\": \"object\",",
+																	"                                    \"properties\": {",
+																	"                                        \"id\": {",
+																	"                                            \"type\": \"integer\"",
+																	"                                        },",
+																	"                                        \"nome\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        },",
+																	"                                        \"preco\": {",
+																	"                                            \"type\": \"number\"",
+																	"                                        },",
+																	"                                        \"categoria\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        },",
+																	"                                        \"complementos\": {",
+																	"                                            \"type\": \"array\",",
+																	"                                            \"items\": {",
+																	"                                                \"type\": \"object\",",
+																	"                                                \"properties\": {",
+																	"                                                    \"id\": {",
+																	"                                                        \"type\": \"integer\"",
+																	"                                                    },",
+																	"                                                    \"preco\": {",
+																	"                                                        \"type\": \"number\"",
+																	"                                                    }",
+																	"                                                },",
+																	"                                                \"required\": [\"id\", \"preco\"]",
+																	"                                            }",
+																	"                                        },",
+																	"                                        \"observacoes\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        }",
+																	"                                    },",
+																	"                                    \"required\": [\"id\", \"nome\", \"preco\", \"categoria\", \"complementos\"]",
+																	"                                },",
+																	"                                \"acompanhamento\": {",
+																	"                                    \"type\": \"object\",",
+																	"                                    \"properties\": {",
+																	"                                        \"id\": {",
+																	"                                            \"type\": \"integer\"",
+																	"                                        },",
+																	"                                        \"nome\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        },",
+																	"                                        \"preco\": {",
+																	"                                            \"type\": \"number\"",
+																	"                                        },",
+																	"                                        \"categoria\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        }",
+																	"                                    },",
+																	"                                    \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+																	"                                },",
+																	"                                \"bebida\": {",
+																	"                                    \"type\": \"object\",",
+																	"                                    \"properties\": {",
+																	"                                        \"id\": {",
+																	"                                            \"type\": \"integer\"",
+																	"                                        },",
+																	"                                        \"nome\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        },",
+																	"                                        \"preco\": {",
+																	"                                            \"type\": \"number\"",
+																	"                                        },",
+																	"                                        \"categoria\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        }",
+																	"                                    },",
+																	"                                    \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+																	"                                },",
+																	"                                \"sobremesa\": {",
+																	"                                    \"type\": \"object\",",
+																	"                                    \"properties\": {",
+																	"                                        \"id\": {",
+																	"                                            \"type\": \"integer\"",
+																	"                                        },",
+																	"                                        \"nome\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        },",
+																	"                                        \"preco\": {",
+																	"                                            \"type\": \"number\"",
+																	"                                        },",
+																	"                                        \"categoria\": {",
+																	"                                            \"type\": \"string\"",
+																	"                                        }",
+																	"                                    },",
+																	"                                    \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+																	"                                }",
+																	"                            },",
+																	"                            \"required\": [\"lanche\", \"acompanhamento\", \"bebida\", \"sobremesa\"]",
+																	"                        }",
+																	"                    },",
+																	"                    \"clienteId\": {",
+																	"                        \"type\": \"integer\"",
+																	"                    },",
+																	"                    \"id\": {",
+																	"                        \"type\": \"integer\"",
+																	"                    },",
+																	"                    \"statusPedido\": {",
+																	"                        \"type\": \"string\"",
+																	"                    },",
+																	"                    \"valorTotal\": {",
+																	"                        \"type\": \"number\"",
+																	"                    }",
+																	"                },",
+																	"                \"required\": [\"combos\", \"clienteId\", \"id\", \"statusPedido\", \"valorTotal\"]",
+																	"            }",
+																	"        },",
+																	"        \"required\": [\"pedidos\"]",
+																	"    };",
+																	"",
+																	"    try {",
+																	"        await salvaPedido()",
+																	"",
+																	"        const { response, data } = await listaPedidos('AGUARDANDO_PAGAMENTO')",
+																	"",
+																	"        console.info('[CONSULTAR PEDIDOS POR STATUS] Data:', data)",
+																	"",
+																	"        pm.expect(response).to.have.jsonSchema(validSchema)",
+																	"    } catch (err) {",
+																	"        throw new Error(`[CONSULTAR PEDIDOS POR STATUS] Erro ao consultar pedidos por status: ${err}`)",
+																	"    }",
+																	"});"
+																],
+																"type": "text/javascript",
+																"packages": {}
+															}
+														}
+													],
+													"id": "8cfab60b-df0f-432b-bb30-aad9a65cd553",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/pedidos/status/:status",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"pedidos",
+																"status",
+																":status"
+															],
+															"variable": [
+																{
+																	"key": "status",
+																	"value": "FINALIZADO",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"response": [
+														{
+															"id": "b23dc9ce-a438-41c4-b53a-bb95eec0eab9",
+															"name": "OK",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/pedidos/status/:status",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"pedidos",
+																		"status",
+																		":status"
+																	],
+																	"variable": [
+																		{
+																			"key": "status",
+																			"value": "FINALIZADO",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"pedidos\": [\n    {\n      \"combos\": [\n        {\n          \"lanche\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\",\n            \"complementos\": [\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"SOBREMESA\"\n              },\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"COMPLEMENTO\"\n              }\n            ],\n            \"observacoes\": \"<string>\"\n          },\n          \"acompanhamento\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\"\n          },\n          \"bebida\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"COMPLEMENTO\"\n          },\n          \"sobremesa\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"SOBREMESA\"\n          },\n          \"valorTotal\": \"<number>\"\n        },\n        {\n          \"lanche\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"COMPLEMENTO\",\n            \"complementos\": [\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"COMPLEMENTO\"\n              },\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"SOBREMESA\"\n              }\n            ],\n            \"observacoes\": \"<string>\"\n          },\n          \"acompanhamento\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"LANCHE\"\n          },\n          \"bebida\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"BEBIDA\"\n          },\n          \"sobremesa\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"SOBREMESA\"\n          },\n          \"valorTotal\": \"<number>\"\n        }\n      ],\n      \"clienteId\": \"<long>\",\n      \"id\": \"<long>\",\n      \"statusPedido\": \"PRONTO\",\n      \"valorTotal\": \"<number>\"\n    },\n    {\n      \"combos\": [\n        {\n          \"lanche\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\",\n            \"complementos\": [\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"LANCHE\"\n              },\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"LANCHE\"\n              }\n            ],\n            \"observacoes\": \"<string>\"\n          },\n          \"acompanhamento\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"SOBREMESA\"\n          },\n          \"bebida\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\"\n          },\n          \"sobremesa\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"BEBIDA\"\n          },\n          \"valorTotal\": \"<number>\"\n        },\n        {\n          \"lanche\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"SOBREMESA\",\n            \"complementos\": [\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"BEBIDA\"\n              },\n              {\n                \"id\": \"<long>\",\n                \"nome\": \"<string>\",\n                \"preco\": \"<number>\",\n                \"categoria\": \"SOBREMESA\"\n              }\n            ],\n            \"observacoes\": \"<string>\"\n          },\n          \"acompanhamento\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"ACOMPANHAMENTO\"\n          },\n          \"bebida\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"BEBIDA\"\n          },\n          \"sobremesa\": {\n            \"id\": \"<long>\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<number>\",\n            \"categoria\": \"BEBIDA\"\n          },\n          \"valorTotal\": \"<number>\"\n        }\n      ],\n      \"clienteId\": \"<long>\",\n      \"id\": \"<long>\",\n      \"statusPedido\": \"FINALIZADO\",\n      \"valorTotal\": \"<number>\"\n    }\n  ]\n}"
+														}
+													]
+												}
+											],
+											"id": "7c3223df-257d-4ef5-8654-bf3d46ee8b3c"
+										}
+									],
+									"id": "93cc8b67-aac6-44c4-8be5-be173c5a65fa"
+								},
+								{
+									"name": "[PEDIDOS] Listar todos os pedidos",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "e2a209da-34a5-46f0-a496-e009ac265d8d",
+												"exec": [
+													"pm.test(\"Retorna os pedidos com sucesso\", async function () {",
+													"    const listaPedidos = async () => new Promise((resolve, reject) => {",
+													"        pm.sendRequest({",
+													"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/pedidos`,",
+													"            method: 'GET'",
+													"        }, function (err, response) {",
+													"            if (err) {",
+													"                reject(err)",
+													"            } else {",
+													"                resolve({ response, data: response.json() })",
+													"            }",
+													"        });",
+													"    });",
+													"",
+													"    const validSchema = {",
+													"        \"type\": \"array\",",
+													"        \"properties\": {",
+													"            \"combos\": {",
+													"                \"type\": \"array\",",
+													"                \"items\": {",
+													"                    \"type\": \"object\",",
+													"                    \"properties\": {",
+													"                        \"lanche\": {",
+													"                            \"type\": \"object\",",
+													"                            \"properties\": {",
+													"                                \"id\": {",
+													"                                    \"type\": \"integer\"",
+													"                                },",
+													"                                \"nome\": {",
+													"                                    \"type\": \"string\"",
+													"                                },",
+													"                                \"preco\": {",
+													"                                    \"type\": \"number\"",
+													"                                },",
+													"                                \"categoria\": {",
+													"                                    \"type\": \"string\"",
+													"                                },",
+													"                                \"complementos\": {",
+													"                                    \"type\": \"array\",",
+													"                                    \"items\": {",
+													"                                        \"type\": \"object\",",
+													"                                        \"properties\": {",
+													"                                            \"id\": {",
+													"                                                \"type\": \"integer\"",
+													"                                            },",
+													"                                            \"preco\": {",
+													"                                                \"type\": \"number\"",
+													"                                            }",
+													"                                        },",
+													"                                        \"required\": [\"id\", \"preco\"]",
+													"                                    }",
+													"                                },",
+													"                                \"observacoes\": {",
+													"                                    \"type\": \"string\"",
+													"                                }",
+													"                            },",
+													"                            \"required\": [\"id\", \"nome\", \"preco\", \"categoria\", \"complementos\"]",
+													"                        },",
+													"                        \"acompanhamento\": {",
+													"                            \"type\": \"object\",",
+													"                            \"properties\": {",
+													"                                \"id\": {",
+													"                                    \"type\": \"integer\"",
+													"                                },",
+													"                                \"nome\": {",
+													"                                    \"type\": \"string\"",
+													"                                },",
+													"                                \"preco\": {",
+													"                                    \"type\": \"number\"",
+													"                                },",
+													"                                \"categoria\": {",
+													"                                    \"type\": \"string\"",
+													"                                }",
+													"                            },",
+													"                            \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"                        },",
+													"                        \"bebida\": {",
+													"                            \"type\": \"object\",",
+													"                            \"properties\": {",
+													"                                \"id\": {",
+													"                                    \"type\": \"integer\"",
+													"                                },",
+													"                                \"nome\": {",
+													"                                    \"type\": \"string\"",
+													"                                },",
+													"                                \"preco\": {",
+													"                                    \"type\": \"number\"",
+													"                                },",
+													"                                \"categoria\": {",
+													"                                    \"type\": \"string\"",
+													"                                }",
+													"                            },",
+													"                            \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"                        },",
+													"                        \"sobremesa\": {",
+													"                            \"type\": \"object\",",
+													"                            \"properties\": {",
+													"                                \"id\": {",
+													"                                    \"type\": \"integer\"",
+													"                                },",
+													"                                \"nome\": {",
+													"                                    \"type\": \"string\"",
+													"                                },",
+													"                                \"preco\": {",
+													"                                    \"type\": \"number\"",
+													"                                },",
+													"                                \"categoria\": {",
+													"                                    \"type\": \"string\"",
+													"                                }",
+													"                            },",
+													"                            \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"                        }",
+													"                    },",
+													"                    \"required\": [\"lanche\", \"acompanhamento\", \"bebida\", \"sobremesa\"]",
+													"                }",
+													"            },",
+													"            \"clienteId\": {",
+													"                \"type\": \"integer\"",
+													"            },",
+													"            \"id\": {",
+													"                \"type\": \"integer\"",
+													"            },",
+													"            \"statusPedido\": {",
+													"                \"type\": \"string\"",
+													"            },",
+													"            \"valorTotal\": {",
+													"                \"type\": \"number\"",
+													"            }",
+													"        },",
+													"        \"required\": [\"combos\", \"clienteId\", \"id\", \"statusPedido\", \"valorTotal\"]",
+													"    };",
+													"",
+													"    try {",
+													"        const { response, data } = await listaPedidos()",
+													"",
+													"        console.info('[LISTAR TODOS PEDIDOS] Dados da API:', data);",
+													"",
+													"        pm.expect(response).to.have.jsonSchema(validSchema);",
+													"    } catch (err) {",
+													"        console.error('[LISTAR TODOS PEDIDOS] Erro ao listar todos pedidos: ', err)",
+													"    }",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"id": "0144b3b5-4be2-4ab0-a528-4766d09c76a3",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/pedidos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"pedidos"
+											]
+										}
+									},
+									"response": [
+										{
+											"id": "87328c86-2ce9-434d-b5cc-7620aaa2c92c",
+											"name": "OK",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/pedidos",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"pedidos"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "[\n  {\n    \"combos\": [\n      {\n        \"lanche\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\",\n          \"complementos\": [\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            },\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            }\n          ],\n          \"observacoes\": \"<string>\"\n        },\n        \"acompanhamento\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"LANCHE\"\n        },\n        \"bebida\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\"\n        },\n        \"sobremesa\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\"\n        },\n        \"valorTotal\": \"<number>\"\n      },\n      {\n        \"lanche\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"LANCHE\",\n          \"complementos\": [\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"ACOMPANHAMENTO\"\n            },\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"ACOMPANHAMENTO\"\n            }\n          ],\n          \"observacoes\": \"<string>\"\n        },\n        \"acompanhamento\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"SOBREMESA\"\n        },\n        \"bebida\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\"\n        },\n        \"sobremesa\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"COMPLEMENTO\"\n        },\n        \"valorTotal\": \"<number>\"\n      }\n    ],\n    \"clienteId\": \"<long>\",\n    \"id\": \"<long>\",\n    \"statusPedido\": \"EM_PREPARACAO\",\n    \"valorTotal\": \"<number>\"\n  },\n  {\n    \"combos\": [\n      {\n        \"lanche\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"SOBREMESA\",\n          \"complementos\": [\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"COMPLEMENTO\"\n            },\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            }\n          ],\n          \"observacoes\": \"<string>\"\n        },\n        \"acompanhamento\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"LANCHE\"\n        },\n        \"bebida\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\"\n        },\n        \"sobremesa\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"SOBREMESA\"\n        },\n        \"valorTotal\": \"<number>\"\n      },\n      {\n        \"lanche\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\",\n          \"complementos\": [\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"COMPLEMENTO\"\n            },\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            }\n          ],\n          \"observacoes\": \"<string>\"\n        },\n        \"acompanhamento\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\"\n        },\n        \"bebida\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"SOBREMESA\"\n        },\n        \"sobremesa\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"COMPLEMENTO\"\n        },\n        \"valorTotal\": \"<number>\"\n      }\n    ],\n    \"clienteId\": \"<long>\",\n    \"id\": \"<long>\",\n    \"statusPedido\": \"CANCELADO\",\n    \"valorTotal\": \"<number>\"\n  }\n]"
+										}
+									]
+								},
+								{
+									"name": "[PEDIDOS] Registrar Pedidos",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "e4f7d994-cc83-4c05-a4b1-7efd46cb7491",
+												"exec": [
+													"const validSchema = {",
+													"    \"type\": \"object\",",
+													"    \"properties\": {",
+													"        \"pedido\": {",
+													"            \"type\": \"object\",",
+													"            \"properties\": {",
+													"                \"combos\": {",
+													"                    \"type\": \"array\",",
+													"                    \"items\": {",
+													"                        \"type\": \"object\",",
+													"                        \"properties\": {",
+													"                            \"lanche\": {",
+													"                                \"type\": \"object\",",
+													"                                \"properties\": {",
+													"                                    \"id\": {",
+													"                                        \"type\": \"integer\"",
+													"                                    },",
+													"                                    \"nome\": {",
+													"                                        \"type\": \"string\"",
+													"                                    },",
+													"                                    \"preco\": {",
+													"                                        \"type\": \"number\"",
+													"                                    },",
+													"                                    \"categoria\": {",
+													"                                        \"type\": \"string\"",
+													"                                    },",
+													"                                    \"complementos\": {",
+													"                                        \"type\": \"array\",",
+													"                                        \"items\": {",
+													"                                            \"type\": \"object\",",
+													"                                            \"properties\": {",
+													"                                                \"id\": {",
+													"                                                    \"type\": \"integer\"",
+													"                                                },",
+													"                                                \"preco\": {",
+													"                                                    \"type\": \"number\"",
+													"                                                }",
+													"                                            },",
+													"                                            \"required\": [\"id\", \"preco\"]",
+													"                                        }",
+													"                                    },",
+													"                                    \"observacoes\": {",
+													"                                        \"type\": \"string\"",
+													"                                    }",
+													"                                },",
+													"                                \"required\": [\"id\", \"nome\", \"preco\", \"categoria\", \"complementos\"]",
+													"                            },",
+													"                            \"acompanhamento\": {",
+													"                                \"type\": \"object\",",
+													"                                \"properties\": {",
+													"                                    \"id\": {",
+													"                                        \"type\": \"integer\"",
+													"                                    },",
+													"                                    \"nome\": {",
+													"                                        \"type\": \"string\"",
+													"                                    },",
+													"                                    \"preco\": {",
+													"                                        \"type\": \"number\"",
+													"                                    },",
+													"                                    \"categoria\": {",
+													"                                        \"type\": \"string\"",
+													"                                    }",
+													"                                },",
+													"                                \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"                            },",
+													"                            \"bebida\": {",
+													"                                \"type\": \"object\",",
+													"                                \"properties\": {",
+													"                                    \"id\": {",
+													"                                        \"type\": \"integer\"",
+													"                                    },",
+													"                                    \"nome\": {",
+													"                                        \"type\": \"string\"",
+													"                                    },",
+													"                                    \"preco\": {",
+													"                                        \"type\": \"number\"",
+													"                                    },",
+													"                                    \"categoria\": {",
+													"                                        \"type\": \"string\"",
+													"                                    }",
+													"                                },",
+													"                                \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"                            },",
+													"                            \"sobremesa\": {",
+													"                                \"type\": \"object\",",
+													"                                \"properties\": {",
+													"                                    \"id\": {",
+													"                                        \"type\": \"integer\"",
+													"                                    },",
+													"                                    \"nome\": {",
+													"                                        \"type\": \"string\"",
+													"                                    },",
+													"                                    \"preco\": {",
+													"                                        \"type\": \"number\"",
+													"                                    },",
+													"                                    \"categoria\": {",
+													"                                        \"type\": \"string\"",
+													"                                    }",
+													"                                },",
+													"                                \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"                            }",
+													"                        },",
+													"                        \"required\": [\"lanche\", \"acompanhamento\", \"bebida\", \"sobremesa\"]",
+													"                    }",
+													"                },",
+													"                \"clienteId\": {",
+													"                    \"type\": \"integer\"",
+													"                },",
+													"                \"id\": {",
+													"                    \"type\": \"integer\"",
+													"                },",
+													"                \"statusPedido\": {",
+													"                    \"type\": \"string\"",
+													"                },",
+													"                \"valorTotal\": {",
+													"                    \"type\": \"number\"",
+													"                }",
+													"            },",
+													"            \"required\": [\"combos\", \"clienteId\", \"id\", \"statusPedido\", \"valorTotal\"]",
+													"        },",
+													"        \"qrCodePagamento\": {",
+													"            \"type\": \"string\"",
+													"        }",
+													"    },",
+													"    \"required\": [\"pedido\", \"qrCodePagamento\"]",
+													"};",
+													"",
+													"pm.test(\"Cadastra um pedido completo\", function () {",
+													"",
+													"    const body = {",
+													"        \"clienteId\": 1,",
+													"        \"combos\": [",
+													"            {",
+													"                \"lanche\": {",
+													"                    \"id\": 1,",
+													"                    \"complementos\": [",
+													"                        {",
+													"                            \"id\": 6",
+													"                        }",
+													"                    ],",
+													"                    \"observacoes\": \"Capricha no queijo!\"",
+													"                },",
+													"                \"acompanhamento\": {",
+													"                    \"id\": 8",
+													"                },",
+													"                \"bebida\": {",
+													"                    \"id\": 11",
+													"                },",
+													"                \"sobremesa\": {",
+													"                    \"id\": 14",
+													"                }",
+													"            }",
+													"        ]",
+													"    };",
+													"",
+													"    pm.sendRequest({",
+													"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos\",",
+													"        method: 'POST',",
+													"        header: {",
+													"            'Content-Type': 'application/json'",
+													"        },",
+													"        body: {",
+													"            mode: 'raw',",
+													"            raw: JSON.stringify(body)",
+													"        }",
+													"    }, function (err, res) {",
+													"        pm.expect(res).to.have.status(201);",
+													"        pm.expect(res).to.be.json;",
+													"        pm.expect(res).to.have.jsonSchema(validSchema);",
+													"    });",
+													"});",
+													"",
+													"pm.test(\"Código de status é 400 quando enviado dados inválidos\", function () {",
+													"    pm.sendRequest({",
+													"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos\",",
+													"        method: 'POST',",
+													"        header: {",
+													"            'Content-Type': 'application/json'",
+													"        },",
+													"        body: {",
+													"            mode: 'raw',",
+													"            raw: JSON.stringify({})",
+													"        }",
+													"    }, function (err, res) {",
+													"        // const responseJson = res.json();",
+													"        // const invalidMessages = [\"CPF é obrigatório.\", \"Nome é obrigatório.\", \"Email é obrigatório.\"];",
+													"        // const responseMessages = responseJson.arguments.flatMap((data) => data.message);",
+													"",
+													"        pm.expect(res).to.have.status(400);",
+													"        // pm.expect(responseJson.message).to.eq('Requisição inválida')",
+													"",
+													"        // invalidMessages.forEach((invalidMessage) => {",
+													"        //     pm.expect(pm.expect(responseMessages).contains(invalidMessage));",
+													"        // })",
+													"    });",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"id": "a2900725-fd11-46d5-b185-01ff98dd78b7",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"clienteId\": \"<long>\",\n  \"combos\": [\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"complementos\": [\n          {\n            \"categoria\": \"SOBREMESA\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          },\n          {\n            \"categoria\": \"COMPLEMENTO\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"categoria\": \"BEBIDA\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"bebida\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"sobremesa\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      }\n    },\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"complementos\": [\n          {\n            \"categoria\": \"LANCHE\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          },\n          {\n            \"categoria\": \"SOBREMESA\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"categoria\": \"LANCHE\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"bebida\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"sobremesa\": {\n        \"categoria\": \"COMPLEMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      }\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/pedidos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"pedidos"
+											]
+										},
+										"description": "Lembre-se de adicionar os itens que deseja dentro da estrutura exemplificada"
+									},
+									"response": [
+										{
+											"id": "f9d571f8-1265-4fdf-a50c-22c9abd9eb09",
+											"name": "Pedido registrado",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"clienteId\": \"<long>\",\n  \"combos\": [\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"complementos\": [\n          {\n            \"categoria\": \"SOBREMESA\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          },\n          {\n            \"categoria\": \"COMPLEMENTO\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"categoria\": \"BEBIDA\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"bebida\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"sobremesa\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      }\n    },\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"complementos\": [\n          {\n            \"categoria\": \"LANCHE\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          },\n          {\n            \"categoria\": \"SOBREMESA\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"categoria\": \"LANCHE\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"bebida\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"sobremesa\": {\n        \"categoria\": \"COMPLEMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      }\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/pedidos",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"pedidos"
+													]
+												},
+												"description": "Lembre-se de adicionar os itens que deseja dentro da estrutura exemplificada"
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"pedido\": {\n    \"combos\": [\n      {\n        \"lanche\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"SOBREMESA\",\n          \"complementos\": [\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"SOBREMESA\"\n            },\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            }\n          ],\n          \"observacoes\": \"<string>\"\n        },\n        \"acompanhamento\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"COMPLEMENTO\"\n        },\n        \"bebida\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"COMPLEMENTO\"\n        },\n        \"sobremesa\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\"\n        },\n        \"valorTotal\": \"<number>\"\n      },\n      {\n        \"lanche\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"BEBIDA\",\n          \"complementos\": [\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            },\n            {\n              \"id\": \"<long>\",\n              \"nome\": \"<string>\",\n              \"preco\": \"<number>\",\n              \"categoria\": \"BEBIDA\"\n            }\n          ],\n          \"observacoes\": \"<string>\"\n        },\n        \"acompanhamento\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"ACOMPANHAMENTO\"\n        },\n        \"bebida\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"LANCHE\"\n        },\n        \"sobremesa\": {\n          \"id\": \"<long>\",\n          \"nome\": \"<string>\",\n          \"preco\": \"<number>\",\n          \"categoria\": \"SOBREMESA\"\n        },\n        \"valorTotal\": \"<number>\"\n      }\n    ],\n    \"clienteId\": \"<long>\",\n    \"id\": \"<long>\",\n    \"statusPedido\": \"CANCELADO\",\n    \"valorTotal\": \"<number>\"\n  },\n  \"qrCodePagamento\": \"<string>\"\n}"
+										},
+										{
+											"id": "ef3f551b-8db8-402f-9bed-767f24057555",
+											"name": "Erro ao registrar pedido",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"clienteId\": \"<long>\",\n  \"combos\": [\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"complementos\": [\n          {\n            \"categoria\": \"SOBREMESA\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          },\n          {\n            \"categoria\": \"COMPLEMENTO\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"categoria\": \"BEBIDA\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"bebida\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"sobremesa\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      }\n    },\n    {\n      \"lanche\": {\n        \"id\": \"<long>\",\n        \"complementos\": [\n          {\n            \"categoria\": \"LANCHE\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          },\n          {\n            \"categoria\": \"SOBREMESA\",\n            \"nome\": \"<string>\",\n            \"preco\": \"<double>\"\n          }\n        ],\n        \"observacoes\": \"<string>\"\n      },\n      \"acompanhamento\": {\n        \"categoria\": \"LANCHE\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"bebida\": {\n        \"categoria\": \"ACOMPANHAMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      },\n      \"sobremesa\": {\n        \"categoria\": \"COMPLEMENTO\",\n        \"nome\": \"<string>\",\n        \"preco\": \"<double>\"\n      }\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/pedidos",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"pedidos"
+													]
+												},
+												"description": "Lembre-se de adicionar os itens que deseja dentro da estrutura exemplificada"
+											},
+											"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+											"code": 422,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+										}
+									]
+								}
+							],
+							"id": "cc8e5c36-d29e-4fa5-aea8-6ffa8695cb3b"
+						},
+						{
+							"name": "itens",
+							"item": [
+								{
+									"name": "{id}",
+									"item": [
+										{
+											"name": "[ITENS] Atualizar item por id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"id": "34bdd22c-19f4-4ab6-a00b-b870794e4f23",
+														"exec": [
+															"pm.test(\"Atualiza status com sucesso\", async function () {",
+															"    const atualizaItemPorId = async (itemId, body) => new Promise((resolve, reject) => {",
+															"        pm.sendRequest({",
+															"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens/${itemId}`,",
+															"            method: 'PUT',",
+															"            header: {",
+															"                'Content-Type': 'application/json'",
+															"            },",
+															"            body: {",
+															"                mode: 'raw',",
+															"                raw: JSON.stringify(body)",
+															"            }",
+															"        }, function (err, response) {",
+															"            if (err) {",
+															"                reject(err)",
+															"            } else {",
+															"                resolve({ response, data: response.json() })",
+															"            }",
+															"        });",
+															"    });",
+															"",
+															"    const validSchema = {",
+															"        \"type\": \"object\",",
+															"        \"properties\": {",
+															"            \"id\": {",
+															"                \"type\": \"integer\"",
+															"            },",
+															"            \"nome\": {",
+															"                \"type\": \"string\"",
+															"            },",
+															"            \"preco\": {",
+															"                \"type\": \"number\"",
+															"            },",
+															"            \"categoria\": {",
+															"                \"type\": \"string\"",
+															"            }",
+															"        },",
+															"        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+															"    }",
+															"",
+															"    try {",
+															"        const { response, data } = await atualizaItemPorId(1, {",
+															"            \"nome\": \"Hamburguer\",",
+															"            \"preco\": 11.5,",
+															"            \"categoria\": \"LANCHE\"",
+															"        })",
+															"",
+															"        console.info('[ATUALIZAR ITEM POR ID] Data: ', data)",
+															"",
+															"        pm.expect(response).to.have.status(200);",
+															"        pm.expect(response).to.have.jsonSchema(validSchema)",
+															"    } catch (err) {",
+															"        throw new Error(`[ATUALIZAR ITEM POR ID] Erro ao atualizar item por id: ${err}`)",
+															"    }",
+															"});"
+														],
+														"type": "text/javascript",
+														"packages": {}
+													}
+												}
+											],
+											"id": "3300f650-8c85-4e94-a817-d22deb92a55f",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"categoria\": \"ACOMPANHAMENTO\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<double>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/itens/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"itens",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"id": "8a392e0e-bd6e-4c39-b168-39266c1b74d3",
+													"name": "Operação bem sucedida",
+													"originalRequest": {
+														"method": "PUT",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															},
+															{
+																"key": "Accept",
+																"value": "*/*"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"categoria\": \"ACOMPANHAMENTO\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<double>\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/itens/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"itens",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "text",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "*/*"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"id\": \"<long>\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<number>\",\n  \"categoria\": \"COMPLEMENTO\"\n}"
+												},
+												{
+													"id": "8aa1784e-0160-4c0c-be19-24a4baaace0b",
+													"name": "Nenhum item cadastrado",
+													"originalRequest": {
+														"method": "PUT",
+														"header": [
+															{
+																"key": "Content-Type",
+																"value": "application/json"
+															},
+															{
+																"key": "Accept",
+																"value": "*/*"
+															}
+														],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"categoria\": \"ACOMPANHAMENTO\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<double>\"\n}",
+															"options": {
+																"raw": {
+																	"headerFamily": "json",
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/itens/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"itens",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+												}
+											]
+										},
+										{
+											"name": "[ITENS] Deletar item por id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"id": "5728c048-1345-47e9-a23d-62de7baf9e5f",
+														"exec": [
+															"pm.test(\"1° Adiciona item | 2° Deleta item\", async function () {",
+															"    const criaNovoItem = async (body) => new Promise((resolve, reject) => {",
+															"        pm.sendRequest({",
+															"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens`,",
+															"            method: 'POST',",
+															"            header: {",
+															"                'Content-Type': 'application/json'",
+															"            },",
+															"            body: {",
+															"                mode: 'raw',",
+															"                raw: JSON.stringify(body)",
+															"            }",
+															"        }, function (err, response) {",
+															"            if (err) {",
+															"                reject(err)",
+															"            } else {",
+															"                resolve({ response, data: response.json() })",
+															"            }",
+															"        });",
+															"    });",
+															"",
+															"    const deletaItem = async (itemId) => new Promise((resolve, reject) => {",
+															"        pm.sendRequest({",
+															"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens/${itemId}`,",
+															"            method: 'DELETE'",
+															"        }, function (err, response) {",
+															"            if (err) {",
+															"                reject(err)",
+															"            } else {",
+															"                resolve({ response, data: response.json() })",
+															"            }",
+															"        });",
+															"    });",
+															"",
+															"    try {",
+															"        const { data } = await criaNovoItem({",
+															"            \"nome\": `Item - ${(Math.random() * Math.random()).toString().substr(0, 5)}`,",
+															"            \"preco\": 11.5,",
+															"            \"categoria\": \"LANCHE\"",
+															"        });",
+															"",
+															"        console.info('[DELETAR ITEM POR ID] Item criado com Sucesso.')",
+															"",
+															"        const { response } = await deletaItem(data.id)",
+															"        pm.expect(response).to.have.status(200);",
+															"",
+															"        console.info('[DELETAR ITEM POR ID] Sucesso.')",
+															"    } catch (err) {",
+															"        console.error('[DELETAR ITEM POR ID] Erro ao deletar item por id:', err)",
+															"    }",
+															"});"
+														],
+														"type": "text/javascript",
+														"packages": {}
+													}
+												}
+											],
+											"id": "69778eee-8f2e-4429-a7ba-9618c3ec0d0e",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "DELETE",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/itens/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"itens",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"id": "11c4c993-76f6-4919-94d5-333319400a34",
+													"name": "Operação bem sucedida",
+													"originalRequest": {
+														"method": "DELETE",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "*/*"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/itens/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"itens",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "text",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "*/*"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"id\": \"<long>\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<number>\",\n  \"categoria\": \"COMPLEMENTO\"\n}"
+												},
+												{
+													"id": "53e0873f-2ae6-4347-987e-677c1a0e91dd",
+													"name": "Nenhum item cadastrado",
+													"originalRequest": {
+														"method": "DELETE",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "*/*"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/itens/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"itens",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+												}
+											]
+										}
+									],
+									"id": "d58524d7-8963-4fdc-acf7-2558de815f6c"
+								},
+								{
+									"name": "por-id",
+									"item": [
+										{
+											"name": "{id}",
+											"item": [
+												{
+													"name": "[ITENS] Consultar item por Id",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"id": "41af9398-3fbc-49d9-bb0b-32719fc61a7c",
+																"exec": [
+																	"pm.test(\"Retorna item\", async function () {",
+																	"    const consultaItemPorId = async (itemId) => new Promise((resolve, reject) => {",
+																	"        pm.sendRequest({",
+																	"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens/por-id/${itemId}`,",
+																	"            method: 'GET'",
+																	"        }, function (err, response) {",
+																	"            if (err) {",
+																	"                reject(err)",
+																	"            } else {",
+																	"                resolve({ response, data: response.json() })",
+																	"            }",
+																	"        });",
+																	"    });",
+																	"",
+																	"    const validSchema = {",
+																	"        \"properties\": {",
+																	"            \"id\": {",
+																	"                \"type\": \"integer\"",
+																	"            },",
+																	"            \"nome\": {",
+																	"                \"type\": \"string\"",
+																	"            },",
+																	"            \"preco\": {",
+																	"                \"type\": \"number\"",
+																	"            },",
+																	"            \"categoria\": {",
+																	"                \"type\": \"string\"",
+																	"            }",
+																	"        },",
+																	"        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+																	"    }",
+																	"",
+																	"    try {",
+																	"        const { response, data } = await consultaItemPorId(1);",
+																	"",
+																	"        console.info(`[CONSULTAR ITENS POR ID] Data:`, data)",
+																	"",
+																	"        pm.expect(response).to.have.jsonSchema(validSchema)",
+																	"    } catch (err) {",
+																	"        throw new Error(`[CONSULTAR ITENS POR ID] Erro ao atualizar item por id: ${err}`)",
+																	"    }",
+																	"});"
+																],
+																"type": "text/javascript",
+																"packages": {}
+															}
+														}
+													],
+													"id": "52fdd93c-6506-47f6-9849-7bb74067c8b7",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/itens/por-id/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"itens",
+																"por-id",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"response": [
+														{
+															"id": "228a5912-5836-42d6-b4aa-01139f8be771",
+															"name": "Operação bem sucedida",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/itens/por-id/:id",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"itens",
+																		"por-id",
+																		":id"
+																	],
+																	"variable": [
+																		{
+																			"key": "id",
+																			"value": "<long>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"id\": \"<long>\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<number>\",\n  \"categoria\": \"COMPLEMENTO\"\n}"
+														},
+														{
+															"id": "cd4c7d26-1180-43a3-9dd8-ef86382a1919",
+															"name": "Nenhum item cadastrado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/itens/por-id/:id",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"itens",
+																		"por-id",
+																		":id"
+																	],
+																	"variable": [
+																		{
+																			"key": "id",
+																			"value": "<long>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "Not Found",
+															"code": 404,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "3f5d9048-3b05-47a6-a5f4-003b19e7c236"
+										}
+									],
+									"id": "d593e055-7565-400a-ae5c-a2386a8b5e45"
+								},
+								{
+									"name": "por-categoria",
+									"item": [
+										{
+											"name": "{categoria}",
+											"item": [
+												{
+													"name": "itens",
+													"item": [
+														{
+															"name": "[ITENS] Consultar itens por categoria",
+															"event": [
+																{
+																	"listen": "test",
+																	"script": {
+																		"id": "affe44f3-26ab-4ea5-a536-1568aacc6b44",
+																		"exec": [
+																			"pm.test(\"Retorna itens\", async function () {",
+																			"    const consultaItemCategoria = async (categoria) => new Promise((resolve, reject) => {",
+																			"        pm.sendRequest({",
+																			"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens/por-categoria/${categoria}/itens`,",
+																			"            method: 'GET'",
+																			"        }, function (err, response) {",
+																			"            if (err) {",
+																			"                reject(err)",
+																			"            } else {",
+																			"                resolve({ response, data: response.json() })",
+																			"            }",
+																			"        });",
+																			"    });",
+																			"",
+																			"    const validSchema = {",
+																			"        \"properties\": {",
+																			"            \"id\": {",
+																			"                \"type\": \"integer\"",
+																			"            },",
+																			"            \"nome\": {",
+																			"                \"type\": \"string\"",
+																			"            },",
+																			"            \"preco\": {",
+																			"                \"type\": \"number\"",
+																			"            },",
+																			"            \"categoria\": {",
+																			"                \"type\": \"string\"",
+																			"            }",
+																			"        },",
+																			"        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+																			"    }",
+																			"",
+																			"    try {",
+																			"        const { response, data } = await consultaItemCategoria('LANCHE');",
+																			"",
+																			"        console.info('[CONSULTAR ITENS POR CATEGORIA] Data:', data);",
+																			"",
+																			"        pm.expect(response).to.have.jsonSchema(validSchema);",
+																			"    } catch (err) {",
+																			"        throw new Error(`[CONSULTAR ITENS POR CATEGORIA] Erro ao consultar itens por categoria: ${err}`)",
+																			"    }",
+																			"});"
+																		],
+																		"type": "text/javascript",
+																		"packages": {}
+																	}
+																}
+															],
+															"id": "33553254-1edd-4376-8fdb-9ee6950ad3fa",
+															"protocolProfileBehavior": {
+																"disableBodyPruning": true
+															},
+															"request": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/itens/por-categoria/:categoria/itens",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"itens",
+																		"por-categoria",
+																		":categoria",
+																		"itens"
+																	],
+																	"variable": [
+																		{
+																			"key": "categoria",
+																			"value": "SOBREMESA",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"response": [
+																{
+																	"id": "5a5e5c04-efb0-459b-956b-97ae2cd841c7",
+																	"name": "Operação bem sucedida",
+																	"originalRequest": {
+																		"method": "GET",
+																		"header": [
+																			{
+																				"key": "Accept",
+																				"value": "application/json"
+																			}
+																		],
+																		"url": {
+																			"raw": "{{baseUrl}}/api/v1/itens/por-categoria/:categoria/itens",
+																			"host": [
+																				"{{baseUrl}}"
+																			],
+																			"path": [
+																				"api",
+																				"v1",
+																				"itens",
+																				"por-categoria",
+																				":categoria",
+																				"itens"
+																			],
+																			"variable": [
+																				{
+																					"key": "categoria",
+																					"value": "SOBREMESA",
+																					"description": "(Required) "
+																				}
+																			]
+																		}
+																	},
+																	"status": "OK",
+																	"code": 200,
+																	"_postman_previewlanguage": "json",
+																	"header": [
+																		{
+																			"key": "Content-Type",
+																			"value": "application/json"
+																		}
+																	],
+																	"cookie": [],
+																	"body": "[\n  {\n    \"id\": \"<long>\",\n    \"nome\": \"<string>\",\n    \"preco\": \"<number>\",\n    \"categoria\": \"ACOMPANHAMENTO\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"nome\": \"<string>\",\n    \"preco\": \"<number>\",\n    \"categoria\": \"LANCHE\"\n  }\n]"
+																},
+																{
+																	"id": "412814e9-b0c7-4eef-a1e8-858f1b61ff60",
+																	"name": "Nenhum item cadastrado",
+																	"originalRequest": {
+																		"method": "GET",
+																		"header": [
+																			{
+																				"key": "Accept",
+																				"value": "application/json"
+																			}
+																		],
+																		"url": {
+																			"raw": "{{baseUrl}}/api/v1/itens/por-categoria/:categoria/itens",
+																			"host": [
+																				"{{baseUrl}}"
+																			],
+																			"path": [
+																				"api",
+																				"v1",
+																				"itens",
+																				"por-categoria",
+																				":categoria",
+																				"itens"
+																			],
+																			"variable": [
+																				{
+																					"key": "categoria",
+																					"value": "SOBREMESA",
+																					"description": "(Required) "
+																				}
+																			]
+																		}
+																	},
+																	"status": "Not Found",
+																	"code": 404,
+																	"_postman_previewlanguage": "json",
+																	"header": [
+																		{
+																			"key": "Content-Type",
+																			"value": "application/json"
+																		}
+																	],
+																	"cookie": [],
+																	"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+																}
+															]
+														}
+													],
+													"id": "8f4f28dc-73bc-451e-b701-0ad4814d3267"
+												}
+											],
+											"id": "f3e34043-d069-4cd5-840e-4ded03f207b2"
+										}
+									],
+									"id": "c770ccfa-c7dd-49de-9eec-47761ca25413"
+								},
+								{
+									"name": "[ITENS] Consultar todos os itens",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ae0c1c86-f321-4273-bee4-bfb9f41d9333",
+												"exec": [
+													"pm.test(\"Retorna todos os itens\", async function () {",
+													"    const getItens = async () => new Promise((resolve, reject) => {",
+													"        pm.sendRequest({",
+													"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens`,",
+													"        }, function (err, response) {",
+													"            if (err) {",
+													"                reject(err)",
+													"            } else {",
+													"                resolve({ response, data: response.json() })",
+													"            }",
+													"        });",
+													"    });",
+													"",
+													"    const validSchema = {",
+													"        \"type\": \"array\",",
+													"        \"properties\": {",
+													"            \"id\": {",
+													"                \"type\": \"integer\"",
+													"            },",
+													"            \"nome\": {",
+													"                \"type\": \"string\"",
+													"            },",
+													"            \"preco\": {",
+													"                \"type\": \"number\"",
+													"            },",
+													"            \"categoria\": {",
+													"                \"type\": \"string\"",
+													"            }",
+													"        },",
+													"        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"    };",
+													"",
+													"    try {",
+													"        const { response, data } = await getItens();",
+													"",
+													"        console.info('[CONSULTAR TODOS OS ITENS] Sucesso:', data)",
+													"",
+													"        pm.expect(response).to.have.jsonSchema(validSchema);",
+													"    } catch (err) {",
+													"        throw new Error(`[CONSULTAR TODOS OS ITENS] Erro ao listar todos os itens: ${err}`);",
+													"    }",
+													"});",
+													""
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"id": "d3664d42-3b90-4a81-8752-ebeec2ada255",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/itens",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"itens"
+											]
+										}
+									},
+									"response": [
+										{
+											"id": "442665ca-a0c2-4704-b3c0-f4eb3d369270",
+											"name": "Operação bem sucedida",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/itens",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"itens"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "[\n  {\n    \"id\": \"<long>\",\n    \"nome\": \"<string>\",\n    \"preco\": \"<number>\",\n    \"categoria\": \"ACOMPANHAMENTO\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"nome\": \"<string>\",\n    \"preco\": \"<number>\",\n    \"categoria\": \"LANCHE\"\n  }\n]"
+										},
+										{
+											"id": "d249c003-dfc5-47bd-998b-23ffb726ca53",
+											"name": "Nenhum item cadastrado",
+											"originalRequest": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/itens",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"itens"
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+										}
+									]
+								},
+								{
+									"name": "[ITENS] Criar novo item",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c5d8942b-b7ce-4659-a48b-37d88d6166c9",
+												"exec": [
+													"pm.test(\"Cria novo item com sucesso\", async function () {",
+													"    const criaNovoItem = async (body) => new Promise((resolve, reject) => {",
+													"        pm.sendRequest({",
+													"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/itens`,",
+													"            method: 'POST',",
+													"            header: {",
+													"                'Content-Type': 'application/json'",
+													"            },",
+													"            body: {",
+													"                mode: 'raw',",
+													"                raw: JSON.stringify(body)",
+													"            }",
+													"        }, function (err, response) {",
+													"            if (err) {",
+													"                reject(err)",
+													"            } else {",
+													"                resolve({ response, data: response.json() })",
+													"            }",
+													"        });",
+													"    });",
+													"",
+													"    const validSchema = {",
+													"        \"properties\": {",
+													"            \"id\": {",
+													"                \"type\": \"integer\"",
+													"            },",
+													"            \"nome\": {",
+													"                \"type\": \"string\"",
+													"            },",
+													"            \"preco\": {",
+													"                \"type\": \"number\"",
+													"            },",
+													"            \"categoria\": {",
+													"                \"type\": \"string\"",
+													"            }",
+													"        },",
+													"        \"required\": [\"id\", \"nome\", \"preco\", \"categoria\"]",
+													"    }",
+													"",
+													"    try {",
+													"        const { response, data } = await criaNovoItem({",
+													"            \"nome\": `Item - ${(Math.random() * Date.now()).toString().substr(0, 5)}`,",
+													"            \"preco\": (Math.random() * Math.random() * 10).toFixed(2),",
+													"            \"categoria\": \"LANCHE\"",
+													"        });",
+													"",
+													"        console.info('[CRIAR NOVO ITEM] Data:', data)",
+													"",
+													"        pm.expect(response).to.have.jsonSchema(validSchema);",
+													"    } catch (err) {",
+													"        throw new Error(`[CRIAR NOVO ITEM] Erro ao criar novo item: ${err}`)",
+													"    }",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"id": "16eda55b-e44c-42f0-aa34-2e9f9a3ceb12",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"categoria\": \"ACOMPANHAMENTO\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<double>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/itens",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"itens"
+											]
+										}
+									},
+									"response": [
+										{
+											"id": "704fe493-f611-46de-9e6a-5fde3ba72576",
+											"name": "Operação bem sucedida",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"categoria\": \"ACOMPANHAMENTO\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<double>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/itens",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"itens"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"id\": \"<long>\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<number>\",\n  \"categoria\": \"COMPLEMENTO\"\n}"
+										},
+										{
+											"id": "f4230d88-16ce-4eee-a9be-8443403dd3fa",
+											"name": "Erro ao cadastrar item",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"categoria\": \"ACOMPANHAMENTO\",\n  \"nome\": \"<string>\",\n  \"preco\": \"<double>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/itens",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"itens"
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+										}
+									]
+								}
+							],
+							"id": "48aaa5ac-c278-4705-9f83-9c33486bd53b"
+						},
+						{
+							"name": "clientes",
+							"item": [
+								{
+									"name": "{id}",
+									"item": [
+										{
+											"name": "[CLIENTES] Consultar cliente pelo id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"id": "b20dc1f0-4d6d-48ad-966f-d22bc66791b0",
+														"exec": [
+															"const validSchema = {",
+															"    \"type\": \"object\",",
+															"    \"properties\": {",
+															"        \"id\": {",
+															"            \"type\": \"integer\"",
+															"        },",
+															"        \"nome\": {",
+															"            \"type\": \"string\"",
+															"        },",
+															"        \"email\": {",
+															"            \"type\": \"string\"",
+															"        },",
+															"        \"uuid\": {",
+															"            \"type\": \"string\"",
+															"        }",
+															"    },",
+															"    \"required\": [\"id\", \"nome\", \"email\", \"uuid\"]",
+															"};",
+															"",
+															"// Teste para verificar se o código de status é 200",
+															"pm.test(\"Código de status é 200\", function () {",
+															"    pm.sendRequest({",
+															"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes/1\",",
+															"        method: 'GET'",
+															"    }, function (err, res) {",
+															"        pm.expect(res).to.have.status(200);",
+															"        pm.expect(res).to.be.json;",
+															"        pm.expect(res).to.have.jsonSchema(validSchema);",
+															"    });",
+															"});",
+															"",
+															"// Teste para verificar se o código de status é 404 quando o cliente não é encontrado",
+															"pm.test(\"Código de status é 404 quando cliente não é encontrado\", function () {",
+															"    pm.sendRequest({",
+															"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes/0\",",
+															"        method: 'GET'",
+															"    }, function (err, res) {",
+															"        pm.expect(res).to.have.status(404);",
+															"    });",
+															"});"
+														],
+														"type": "text/javascript",
+														"packages": {}
+													}
+												}
+											],
+											"id": "362fd7f7-d07e-434d-89c6-dfa2c6d5367d",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/clientes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"clientes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"id": "14d62d72-5f23-470f-b77f-467f563b9d6c",
+													"name": "Retorna o cliente pelo id informado",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/clientes/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"clientes",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+												},
+												{
+													"id": "46767ff2-13af-42cc-b1f5-f452243f594d",
+													"name": "Retorna cliente não encontrado",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/clientes/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"clientes",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+												}
+											]
+										}
+									],
+									"id": "6ab32a33-16fe-4aa7-9197-e781539b0a60"
+								},
+								{
+									"name": "por-uuid",
+									"item": [
+										{
+											"name": "{uuid}",
+											"item": [
+												{
+													"name": "[CLIENTES] Consultar cliente pelo uuid",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"id": "26ecfa13-67de-4beb-9f6f-4659cdb2abfb",
+																"exec": [
+																	"const validSchema = {",
+																	"    \"type\": \"object\",",
+																	"    \"properties\": {",
+																	"        \"id\": {",
+																	"            \"type\": \"integer\"",
+																	"        },",
+																	"        \"nome\": {",
+																	"            \"type\": \"string\"",
+																	"        },",
+																	"        \"email\": {",
+																	"            \"type\": \"string\"",
+																	"        },",
+																	"        \"uuid\": {",
+																	"            \"type\": \"string\"",
+																	"        }",
+																	"    },",
+																	"    \"required\": [\"id\", \"nome\", \"email\", \"uuid\"]",
+																	"};",
+																	"",
+																	"// Teste para verificar se o código de status é 200",
+																	"pm.test(\"Código de status é 200\", function () {",
+																	"    pm.sendRequest({",
+																	"        url: `${pm.environment.get(\"baseUrl\")}/api/v1/clientes/por-uuid/de389bdf-4890-11ef-bf9a-0242ac120002`,",
+																	"        method: 'GET'",
+																	"    }, function (err, res) {",
+																	"        pm.expect(res).to.have.status(200);",
+																	"        pm.expect(res).to.be.json;",
+																	"        pm.expect(res).to.have.jsonSchema(validSchema);",
+																	"    });",
+																	"});",
+																	"",
+																	"// Teste para verificar se o código de status é 404 quando o cliente não é encontrado",
+																	"pm.test(\"Código de status é 404 quando cliente não é encontrado\", function () {",
+																	"    pm.sendRequest({",
+																	"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes/por-uuid/00000000-0000-0000-0000-00000000\",",
+																	"        method: 'GET'",
+																	"    }, function (err, res) {",
+																	"        pm.expect(res).to.have.status(404);",
+																	"    });",
+																	"});"
+																],
+																"type": "text/javascript",
+																"packages": {}
+															}
+														}
+													],
+													"id": "bdc64fe8-4a88-4aa3-b688-3d785ab3a224",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/clientes/por-uuid/:uuid",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"clientes",
+																"por-uuid",
+																":uuid"
+															],
+															"variable": [
+																{
+																	"key": "uuid",
+																	"value": "<uuid>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"response": [
+														{
+															"id": "26e1ad62-cd2f-4098-9352-273ff07d3d22",
+															"name": "Retorna o cliente pelo uuid informado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/clientes/por-uuid/:uuid",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"clientes",
+																		"por-uuid",
+																		":uuid"
+																	],
+																	"variable": [
+																		{
+																			"key": "uuid",
+																			"value": "<uuid>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+														},
+														{
+															"id": "fe9a8a44-c1c1-4927-bf6d-656999d71fb1",
+															"name": "Retorna cliente não encontrado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/clientes/por-uuid/:uuid",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"clientes",
+																		"por-uuid",
+																		":uuid"
+																	],
+																	"variable": [
+																		{
+																			"key": "uuid",
+																			"value": "<uuid>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "Not Found",
+															"code": 404,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "d22355fd-8556-43e2-9de7-ecf4b1ac225b"
+										}
+									],
+									"id": "009ffb80-a43a-42ea-a8f0-84d66e02005a",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"id": "178fe525-b06d-4eeb-8473-a5485345eb80",
+												"type": "text/javascript",
+												"packages": {},
+												"exec": [
+													""
+												]
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"id": "443f223a-8455-40af-9494-f264e3e011a3",
+												"type": "text/javascript",
+												"packages": {},
+												"exec": [
+													""
+												]
+											}
+										}
+									]
+								},
+								{
+									"name": "por-cpf",
+									"item": [
+										{
+											"name": "{cpf}",
+											"item": [
+												{
+													"name": "[CLIENTES] Consultar cliente pelo CPF",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"id": "68c0d43b-54e7-4e2e-b004-86d650b9a575",
+																"exec": [
+																	"const validSchema = {",
+																	"    \"type\": \"object\",",
+																	"    \"properties\": {",
+																	"        \"id\": {",
+																	"            \"type\": \"integer\"",
+																	"        },",
+																	"        \"nome\": {",
+																	"            \"type\": \"string\"",
+																	"        },",
+																	"        \"email\": {",
+																	"            \"type\": \"string\"",
+																	"        },",
+																	"        \"uuid\": {",
+																	"            \"type\": \"string\"",
+																	"        }",
+																	"    },",
+																	"    \"required\": [\"id\", \"nome\", \"email\", \"uuid\"]",
+																	"};",
+																	"",
+																	"// Teste para verificar se o código de status é 200",
+																	"pm.test(\"Código de status é 200\", function () {",
+																	"    pm.sendRequest({",
+																	"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes/por-cpf/11111111111\",",
+																	"        method: 'GET'",
+																	"    }, function (err, res) {",
+																	"        pm.expect(res).to.have.status(200);",
+																	"        pm.expect(res).to.be.json;",
+																	"        pm.expect(res).to.have.jsonSchema(validSchema);",
+																	"    });",
+																	"});",
+																	"",
+																	"// Teste para verificar se o código de status é 404 quando o cliente não é encontrado",
+																	"pm.test(\"Código de status é 404 quando cliente não é encontrado\", function () {",
+																	"    pm.sendRequest({",
+																	"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes/por-cpf/00000000\",",
+																	"        method: 'GET'",
+																	"    }, function (err, res) {",
+																	"        pm.expect(res).to.have.status(404);",
+																	"    });",
+																	"});"
+																],
+																"type": "text/javascript",
+																"packages": {}
+															}
+														}
+													],
+													"id": "35536021-d230-4d7b-81b1-94d19f175a79",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/clientes/por-cpf/:cpf",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"clientes",
+																"por-cpf",
+																":cpf"
+															],
+															"variable": [
+																{
+																	"key": "cpf",
+																	"value": "<string>",
+																	"description": "(Required) "
+																}
+															]
+														},
+														"description": "CPF contém 11 dígitos"
+													},
+													"response": [
+														{
+															"id": "14bbd421-fed6-4e57-b9c5-a57177f4155b",
+															"name": "Operação bem sucedida",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/clientes/por-cpf/:cpf",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"clientes",
+																		"por-cpf",
+																		":cpf"
+																	],
+																	"variable": [
+																		{
+																			"key": "cpf",
+																			"value": "<string>",
+																			"description": "(Required) "
+																		}
+																	]
+																},
+																"description": "CPF contém 11 dígitos"
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+														},
+														{
+															"id": "92e055fe-3be9-4a24-9a7d-b541642fb190",
+															"name": "Nenhum cliente encontrado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/clientes/por-cpf/:cpf",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"clientes",
+																		"por-cpf",
+																		":cpf"
+																	],
+																	"variable": [
+																		{
+																			"key": "cpf",
+																			"value": "<string>",
+																			"description": "(Required) "
+																		}
+																	]
+																},
+																"description": "CPF contém 11 dígitos"
+															},
+															"status": "Not Found",
+															"code": 404,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "bc45b60d-5afc-4349-b634-6ca6a11efcde"
+										}
+									],
+									"id": "c165cbce-7df4-4167-898b-7f33146940ec"
+								},
+								{
+									"name": "[CLIENTES] Cadastrar cliente",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "959270e2-3c27-4783-b5ca-83605a530a2f",
+												"exec": [
+													"const validSchema = {",
+													"    \"type\": \"object\",",
+													"    \"properties\": {",
+													"        \"id\": {",
+													"            \"type\": \"integer\"",
+													"        },",
+													"        \"nome\": {",
+													"            \"type\": \"string\"",
+													"        },",
+													"        \"email\": {",
+													"            \"type\": \"string\"",
+													"        },",
+													"        \"uuid\": {",
+													"            \"type\": \"string\"",
+													"        }",
+													"    },",
+													"    \"required\": [\"id\", \"nome\", \"email\", \"uuid\"]",
+													"};",
+													"",
+													"pm.test(\"Código de status é 201\", function () {",
+													"    const randomCPF = (Math.random() * Date.now()).toString().substr(0, 11)",
+													"    const body = {",
+													"        \"nome\": `John Doe - ${randomCPF}`,",
+													"        \"email\": `teste-${randomCPF}@teste.com`,",
+													"        \"cpf\": `${randomCPF}`",
+													"    };",
+													"",
+													"    pm.sendRequest({",
+													"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes\",",
+													"        method: 'POST',",
+													"        header: {",
+													"            'Content-Type': 'application/json'",
+													"        },",
+													"        body: {",
+													"            mode: 'raw',",
+													"            raw: JSON.stringify(body)",
+													"        }",
+													"    }, function (err, res) {",
+													"        pm.expect(res).to.have.status(201);",
+													"        pm.expect(res).to.be.json;",
+													"        pm.expect(res).to.have.jsonSchema(validSchema);",
+													"        pm.expect(res.json()).to.contain({",
+													"            nome: body.nome,",
+													"            email: body.email",
+													"        })",
+													"    });",
+													"});",
+													"",
+													"pm.test(\"Código de status é 400 quando enviado dados inválidos\", function () {",
+													"    pm.sendRequest({",
+													"        url: pm.environment.get(\"baseUrl\") + \"/api/v1/clientes\",",
+													"        method: 'POST',",
+													"        header: {",
+													"            'Content-Type': 'application/json'",
+													"        },",
+													"        body: {",
+													"            mode: 'raw',",
+													"            raw: JSON.stringify({})",
+													"        }",
+													"    }, function (err, res) {",
+													"        const responseJson = res.json();",
+													"        const invalidMessages = [\"CPF é obrigatório.\", \"Nome é obrigatório.\", \"Email é obrigatório.\"];",
+													"        const responseMessages = responseJson.arguments.flatMap((data) => data.message);",
+													"",
+													"        pm.expect(res).to.have.status(400);",
+													"        pm.expect(responseJson.message).to.eq('Requisição inválida')",
+													"",
+													"        invalidMessages.forEach((invalidMessage) => {",
+													"            pm.expect(pm.expect(responseMessages).contains(invalidMessage));",
+													"        })",
+													"    });",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"id": "d535e1f6-af2c-4fc7-813c-384a57a68603",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"nome\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/clientes",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"clientes"
+											]
+										}
+									},
+									"response": [
+										{
+											"id": "a4ffb67d-5938-44e7-b743-1ed811aef6e9",
+											"name": "Cliente cadastrado",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"nome\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/clientes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"clientes"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+										},
+										{
+											"id": "9bd56c84-b110-4664-97fe-83b3d4951a6d",
+											"name": "Erro ao cadastrar cliente",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"nome\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/clientes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"clientes"
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+										}
+									]
+								}
+							],
+							"id": "91314d84-f897-41e5-8cf5-332d806c976b",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "ccbb7093-082a-472f-9c8c-a58dcf5a2b70",
+										"type": "text/javascript",
+										"packages": {},
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "449b8ff8-b49a-4858-89b4-3d5e1ef6a0c7",
+										"type": "text/javascript",
+										"packages": {},
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
+							"name": "pagamentos",
+							"item": [
+								{
+									"name": "status-pagamento",
+									"item": [
+										{
+											"name": "{pedido_id}",
+											"item": [
+												{
+													"name": "[PAGAMENTOS] Consultar status do pagamento por pedido id",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"id": "fa748a00-7ced-4e05-a5bf-8b617e048a2d",
+																"exec": [
+																	"pm.test(\"1° Cadastra pedido | 2° Lista status do pagamento\", async function () {",
+																	"    const salvaPedido = async () => new Promise((resolve, reject) => {",
+																	"        const body = {",
+																	"            \"clienteId\": 1,",
+																	"            \"combos\": [",
+																	"                {",
+																	"                    \"lanche\": {",
+																	"                        \"id\": 1,",
+																	"                        \"complementos\": [",
+																	"                            {",
+																	"                                \"id\": 6",
+																	"                            }",
+																	"                        ],",
+																	"                        \"observacoes\": \"Capricha no queijo!\"",
+																	"                    },",
+																	"                    \"acompanhamento\": {",
+																	"                        \"id\": 8",
+																	"                    },",
+																	"                    \"bebida\": {",
+																	"                        \"id\": 11",
+																	"                    },",
+																	"                    \"sobremesa\": {",
+																	"                        \"id\": 14",
+																	"                    }",
+																	"                }",
+																	"            ]",
+																	"        };",
+																	"",
+																	"        pm.sendRequest({",
+																	"            url: pm.environment.get(\"baseUrl\") + \"/api/v1/pedidos\",",
+																	"            method: 'POST',",
+																	"            header: {",
+																	"                'Content-Type': 'application/json'",
+																	"            },",
+																	"            body: {",
+																	"                mode: 'raw',",
+																	"                raw: JSON.stringify(body)",
+																	"            }",
+																	"        }, function (err, response) {",
+																	"            if (err) {",
+																	"                reject(err)",
+																	"            } else {",
+																	"                resolve({ response, data: response.json() })",
+																	"            }",
+																	"        });",
+																	"    });",
+																	"",
+																	"    const consultaStatusPagamentoPorId = async (pagamentoId) => new Promise((resolve, reject) => {",
+																	"        pm.sendRequest({",
+																	"            url: `${pm.environment.get(\"baseUrl\")}/api/v1/pagamentos/status-pagamento/${pagamentoId}`,",
+																	"            method: 'GET'",
+																	"        }, function (err, response) {",
+																	"            if (err) {",
+																	"                reject(err)",
+																	"            } else {",
+																	"                resolve({ response, data: response.json() })",
+																	"            }",
+																	"        });",
+																	"    });",
+																	"",
+																	"    const validSchema = {",
+																	"        \"properties\": {",
+																	"            \"idPedido\": {",
+																	"                \"type\": \"integer\"",
+																	"            },",
+																	"            \"id\": {",
+																	"                \"type\": \"integer\"",
+																	"            },",
+																	"            \"status\": {",
+																	"                \"type\": \"string\"",
+																	"            },",
+																	"            \"pedidoId\": {",
+																	"                \"type\": \"integer\"",
+																	"            },",
+																	"            // \"dataPagamento\": {",
+																	"            //     \"type\": \"string\",",
+																	"            //     \"format\": \"date-time\"",
+																	"            // }",
+																	"        },",
+																	"        \"required\": [\"idPedido\", \"id\", \"status\", \"pedidoId\"] // , \"dataPagamento\" date-time não está funcionando",
+																	"    }",
+																	"",
+																	"    try {",
+																	"        const { data: dataSalvaPedido } = await salvaPedido()",
+																	"        const pedidoId = dataSalvaPedido.pedido.id",
+																	"",
+																	"        const { response, data } = await consultaStatusPagamentoPorId(pedidoId)",
+																	"",
+																	"        console.info('[CONSULTAR STATUS PAGAMENTO POR PAGAMENTO ID] Data:', data)",
+																	"",
+																	"        pm.expect(response).to.have.jsonSchema(validSchema)",
+																	"    } catch (err) {",
+																	"        throw new Error(`[CONSULTAR STATUS PAGAMENTO POR PAGAMENTO ID] Erro ao consultar status do pamento: ${err}`)",
+																	"    }",
+																	"});"
+																],
+																"type": "text/javascript",
+																"packages": {}
+															}
+														}
+													],
+													"id": "85089398-9518-4cd0-8226-62a76f22dd85",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v1/pagamentos/status-pagamento/:pedido_id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"pagamentos",
+																"status-pagamento",
+																":pedido_id"
+															],
+															"variable": [
+																{
+																	"key": "pedido_id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"response": [
+														{
+															"id": "9ad4ed79-792c-425a-980a-e808346d0530",
+															"name": "OK",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v1/pagamentos/status-pagamento/:pedido_id",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v1",
+																		"pagamentos",
+																		"status-pagamento",
+																		":pedido_id"
+																	],
+																	"variable": [
+																		{
+																			"key": "pedido_id",
+																			"value": "<long>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"idPedido\": \"<long>\",\n  \"id\": \"<long>\",\n  \"status\": \"CANCELADO\",\n  \"pedidoId\": \"<long>\",\n  \"dataPagamento\": \"<dateTime>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "4a082ab0-480a-4f44-bf6b-7d373138bdaf"
+										}
+									],
+									"id": "e4fb46be-b5c1-4732-8284-8b472f703aac"
+								}
+							],
+							"id": "272a5637-ef31-4c07-aa07-7834f768693f"
+						}
+					],
+					"id": "ec7a07a2-7388-40c0-bd10-281af3be2046"
+				},
+				{
+					"name": "v2",
+					"item": [
+						{
+							"name": "clientes",
+							"item": [
+								{
+									"name": "{id}",
+									"item": [
+										{
+											"name": "V2 - Consultar cliente pelo id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"id": "b8ce2ed9-f1d6-4895-a9b5-67a41a909710",
+														"exec": [
+															""
+														],
+														"type": "text/javascript",
+														"packages": {}
+													}
+												}
+											],
+											"id": "ce8f16d3-178c-41ac-8e42-a045f3b77a63",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [
+													{
+														"key": "Accept",
+														"value": "application/json"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/api/v2/clientes/:id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v2",
+														"clientes",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "<long>",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"response": [
+												{
+													"id": "88a950c1-1e8d-4e9a-9546-d7ccc53fe66d",
+													"name": "Retorna o cliente pelo id informado",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v2/clientes/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v2",
+																"clientes",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+												},
+												{
+													"id": "5ffa4034-b686-43ab-9e9e-4deb8cd4e602",
+													"name": "Retorna cliente não encontrado",
+													"originalRequest": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v2/clientes/:id",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v2",
+																"clientes",
+																":id"
+															],
+															"variable": [
+																{
+																	"key": "id",
+																	"value": "<long>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"status": "Not Found",
+													"code": 404,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "Content-Type",
+															"value": "application/json"
+														}
+													],
+													"cookie": [],
+													"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+												}
+											]
+										}
+									],
+									"id": "c68d1947-700d-497f-a314-1bb8e13a7ea8"
+								},
+								{
+									"name": "por-uuid",
+									"item": [
+										{
+											"name": "{uuid}",
+											"item": [
+												{
+													"name": "V2 - Consultar cliente pelo uuid",
+													"id": "da259b58-2310-45c4-8a87-6bf5f03d33bb",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v2/clientes/por-uuid/:uuid",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v2",
+																"clientes",
+																"por-uuid",
+																":uuid"
+															],
+															"variable": [
+																{
+																	"key": "uuid",
+																	"value": "<uuid>",
+																	"description": "(Required) "
+																}
+															]
+														}
+													},
+													"response": [
+														{
+															"id": "5a8288d3-24bf-40d5-8c62-b36ce6f92f79",
+															"name": "Retorna o cliente pelo uuid informado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v2/clientes/por-uuid/:uuid",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v2",
+																		"clientes",
+																		"por-uuid",
+																		":uuid"
+																	],
+																	"variable": [
+																		{
+																			"key": "uuid",
+																			"value": "<uuid>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+														},
+														{
+															"id": "19f9e6e9-e487-45da-9426-4ab9557f8c90",
+															"name": "Retorna cliente não encontrado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v2/clientes/por-uuid/:uuid",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v2",
+																		"clientes",
+																		"por-uuid",
+																		":uuid"
+																	],
+																	"variable": [
+																		{
+																			"key": "uuid",
+																			"value": "<uuid>",
+																			"description": "(Required) "
+																		}
+																	]
+																}
+															},
+															"status": "Not Found",
+															"code": 404,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "7832c50a-dba7-44aa-a265-d6e59354a1d7"
+										}
+									],
+									"id": "31337986-4f45-493e-9ed0-9350d9e8bab8"
+								},
+								{
+									"name": "por-cpf",
+									"item": [
+										{
+											"name": "{cpf}",
+											"item": [
+												{
+													"name": "V2 - Consultar cliente pelo CPF",
+													"id": "513f31e8-bb63-41dc-a514-bcac6bd73307",
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [
+															{
+																"key": "Accept",
+																"value": "application/json"
+															}
+														],
+														"url": {
+															"raw": "{{baseUrl}}/api/v2/clientes/por-cpf/:cpf",
+															"host": [
+																"{{baseUrl}}"
+															],
+															"path": [
+																"api",
+																"v2",
+																"clientes",
+																"por-cpf",
+																":cpf"
+															],
+															"variable": [
+																{
+																	"key": "cpf",
+																	"value": "<string>",
+																	"description": "(Required) "
+																}
+															]
+														},
+														"description": "CPF contém 11 dígitos"
+													},
+													"response": [
+														{
+															"id": "5e15f13f-5732-4c90-8a06-91ec51e4b67a",
+															"name": "Operação bem sucedida",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v2/clientes/por-cpf/:cpf",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v2",
+																		"clientes",
+																		"por-cpf",
+																		":cpf"
+																	],
+																	"variable": [
+																		{
+																			"key": "cpf",
+																			"value": "<string>",
+																			"description": "(Required) "
+																		}
+																	]
+																},
+																"description": "CPF contém 11 dígitos"
+															},
+															"status": "OK",
+															"code": 200,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+														},
+														{
+															"id": "a9c05977-fc76-4ebd-8d14-0c85a86358f5",
+															"name": "Nenhum cliente encontrado",
+															"originalRequest": {
+																"method": "GET",
+																"header": [
+																	{
+																		"key": "Accept",
+																		"value": "application/json"
+																	}
+																],
+																"url": {
+																	"raw": "{{baseUrl}}/api/v2/clientes/por-cpf/:cpf",
+																	"host": [
+																		"{{baseUrl}}"
+																	],
+																	"path": [
+																		"api",
+																		"v2",
+																		"clientes",
+																		"por-cpf",
+																		":cpf"
+																	],
+																	"variable": [
+																		{
+																			"key": "cpf",
+																			"value": "<string>",
+																			"description": "(Required) "
+																		}
+																	]
+																},
+																"description": "CPF contém 11 dígitos"
+															},
+															"status": "Not Found",
+															"code": 404,
+															"_postman_previewlanguage": "json",
+															"header": [
+																{
+																	"key": "Content-Type",
+																	"value": "application/json"
+																}
+															],
+															"cookie": [],
+															"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+														}
+													]
+												}
+											],
+											"id": "f075be3f-65ed-49fa-b840-a243aa2758ed"
+										}
+									],
+									"id": "f366eb24-6361-447a-a4c5-83a0734a2196"
+								},
+								{
+									"name": "V2 - Cadastrar cliente",
+									"id": "4e4e083c-6705-4246-a96f-0fad4868f0f6",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "*/*"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"nome\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v2/clientes",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v2",
+												"clientes"
+											]
+										}
+									},
+									"response": [
+										{
+											"id": "414b7cf4-2701-4ea7-9d5e-ce7df58a7394",
+											"name": "Cliente cadastrado",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"nome\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v2/clientes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v2",
+														"clientes"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "*/*"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"nome\": \"<string>\",\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"id\": \"<long>\",\n  \"uuid\": \"<uuid>\",\n  \"uuId\": \"<uuid>\"\n}"
+										},
+										{
+											"id": "5ed34e18-1569-45b0-a10a-0612a852d163",
+											"name": "Erro ao cadastrar cliente",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													},
+													{
+														"key": "Accept",
+														"value": "*/*"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"cpf\": \"<string>\",\n  \"email\": \"<string>\",\n  \"nome\": \"<string>\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/api/v2/clientes",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v2",
+														"clientes"
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"code\": \"<string>\",\n  \"message\": \"<string>\",\n  \"date\": \"<long>\",\n  \"arguments\": [\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    },\n    {\n      \"code\": \"<string>\",\n      \"message\": \"<string>\",\n      \"owner\": \"<string>\",\n      \"date\": \"<long>\"\n    }\n  ],\n  \"status\": \"<integer>\"\n}"
+										}
+									]
+								}
+							],
+							"id": "dc27c5c2-e726-4802-b20c-e16ab8cf685b"
+						}
+					],
+					"id": "2a31e95a-bebe-4ad2-8cf1-941cd5c86e2f"
+				}
+			],
+			"id": "75c8eb55-e588-4441-97b1-bd4971543692"
+		},
+		{
+			"name": "wh",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "pagamentos",
+							"item": [
+								{
+									"name": "[PAGAMENTOS] WEBHOOK após pagamento aprovado/recusado",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "4a49e754-d747-4e46-ab31-7007f38511d2",
+												"exec": [
+													"pm.test(\"Aprova o pagamento de um pedido\", function () {",
+													"    const requestPagamento = async (pedidoId, statusConfirmacaoPagamento) => new Promise((resolve, reject) => {",
+													"        pm.sendRequest({",
+													"            url: pm.environment.get(\"baseUrl\") + \"/wh/v1/pagamentos\",",
+													"            method: 'POST',",
+													"            header: {",
+													"                'Content-Type': 'application/json'",
+													"            },",
+													"            body: {",
+													"                mode: 'raw',",
+													"                raw: JSON.stringify({",
+													"                    \"pagamentoId\": pedidoId,",
+													"                    \"statusConfirmacaoPagamento\": statusConfirmacaoPagamento",
+													"                })",
+													"            }",
+													"        }, function (error, response) {",
+													"            if (error) {",
+													"                reject(error)",
+													"            } else {",
+													"                resolve({ response })",
+													"            }",
+													"        });",
+													"    });",
+													"",
+													"    const body = {",
+													"        \"clienteId\": 1,",
+													"        \"combos\": [",
+													"            {",
+													"                \"lanche\": {",
+													"                    \"id\": 1,",
+													"                    \"complementos\": [",
+													"                        {",
+													"                            \"id\": 6",
+													"                        }",
+													"                    ],",
+													"                    \"observacoes\": \"Capricha no queijo!\"",
+													"                },",
+													"                \"acompanhamento\": {",
+													"                    \"id\": 8",
+													"                },",
+													"                \"bebida\": {",
+													"                    \"id\": 11",
+													"                },",
+													"                \"sobremesa\": {",
+													"                    \"id\": 14",
+													"                }",
+													"            }",
+													"        ]",
+													"    };",
+													"",
+													"    // Primeiro cadastro o pedido",
+													"    pm.sendRequest({",
+													"        url: `${pm.environment.get(\"baseUrl\")}/api/v1/pedidos`,",
+													"        method: 'POST',",
+													"        header: {",
+													"            'Content-Type': 'application/json'",
+													"        },",
+													"        body: {",
+													"            mode: 'raw',",
+													"            raw: JSON.stringify(body)",
+													"        }",
+													"    }, async function (_err, resPedido) {",
+													"        const pedidoResponse = resPedido.json();",
+													"        const pedidoId = pedidoResponse.pedido.id;",
+													"        pm.expect(resPedido).to.have.status(201);",
+													"        pm.expect(resPedido).to.be.json;",
+													"",
+													"        // Aprova o pagamento do pedido",
+													"        try {",
+													"            console.info('[WEBHOOK PAGAMENTO] Data - pedidoId:', pedidoId);",
+													"",
+													"            const { response, data } = await requestPagamento(pedidoId, 'APROVADO')",
+													"",
+													"            console.info('[WEBHOOK PAGAMENTO] response: ', response);",
+													"",
+													"            pm.expect(response).to.have.status(200);",
+													"        } catch (error) {",
+													"            throw new Error(`[WEBHOOK PAGAMENTO] Erro ao aprovar pagamento: ${error}`)",
+													"        }",
+													"    });",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"id": "c70172e9-93af-4263-a175-5e6196595b0a",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"pagamentoId\": \"<long>\",\n  \"statusConfirmacaoPagamento\": \"APROVADO\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/wh/v1/pagamentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"wh",
+												"v1",
+												"pagamentos"
+											]
+										}
+									},
+									"response": [
+										{
+											"id": "2d1f34b2-3f2f-4fd3-ad4d-ec97bc33f309",
+											"name": "OK",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"pagamentoId\": \"<long>\",\n  \"statusConfirmacaoPagamento\": \"APROVADO\"\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/wh/v1/pagamentos",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"wh",
+														"v1",
+														"pagamentos"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": null
+										}
+									]
+								}
+							],
+							"id": "42456096-c06b-4680-a895-5014737aa4e3"
+						}
+					],
+					"id": "435f333a-9ef7-4848-9c56-d16365ad70b2"
+				}
+			],
+			"id": "3555f040-5990-4c70-b978-ac4c85e566cf"
+		}
+	],
+	"variable": [
+		{
+			"id": "fcf3001e-82c6-4738-89f3-be7b087deff9",
+			"key": "baseUrl",
+			"value": "http://localhost:8081"
+		}
+	]
+}
