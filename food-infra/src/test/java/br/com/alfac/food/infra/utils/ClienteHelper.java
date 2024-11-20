@@ -37,4 +37,11 @@ public class ClienteHelper {
 
         return cliente;
     }
+
+
+    public static Cliente criarClienteComId(final Long id) {
+        Cliente cliente = criarCliente(null, null, null);
+        cliente.setId(id);
+        return cliente;
+    }
 }
