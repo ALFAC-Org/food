@@ -16,7 +16,6 @@ public class ConsultarClientePorIdUseCase {
 
     public Cliente execute(Long id) throws FoodException {
         Optional<Cliente> clienteOpt = clienteRepository.consultarClientePorId(id);
-
         return clienteOpt.orElseThrow(() -> new FoodException(ClienteError.CLIENTE_NAO_ENCONTRADO));
     }
 }
