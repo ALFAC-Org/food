@@ -96,6 +96,7 @@
                                 <exclude>br/com/alfac/food/infra/item/**</exclude>
                                 <exclude>br/com/alfac/food/core/application/cliente/**</exclude>
                                 <exclude>br/com/alfac/food/core/application/item/**</exclude>
+                                <exclude>br/com/alfac/food/infra/config/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
