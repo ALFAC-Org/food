@@ -1,13 +1,11 @@
 package br.com.alfac.food.infra.pedido.mapper;
 
-import br.com.alfac.food.core.domain.cliente.Cliente;
 import br.com.alfac.food.core.domain.item.CategoriaItem;
 import br.com.alfac.food.core.domain.item.Item;
 import br.com.alfac.food.core.domain.pedido.Combo;
 import br.com.alfac.food.core.domain.pedido.Lanche;
 import br.com.alfac.food.core.domain.pedido.Pedido;
 import br.com.alfac.food.core.exception.FoodException;
-import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
 import br.com.alfac.food.infra.pedido.persistence.ComboEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboEntity;
 import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
@@ -18,7 +16,7 @@ import org.mapstruct.Named;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {ClienteEntityMapper.class})
+@Mapper(componentModel = "spring")
 public interface PedidoEntityMapper {
 
     @Mapping(target = "combos", source = "combos", qualifiedByName = "combosToEntityParser")

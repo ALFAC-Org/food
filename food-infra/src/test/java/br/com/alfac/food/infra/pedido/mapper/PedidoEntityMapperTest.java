@@ -1,33 +1,30 @@
 package br.com.alfac.food.infra.pedido.mapper;
+
+import br.com.alfac.food.core.domain.pedido.Combo;
+import br.com.alfac.food.core.domain.pedido.Pedido;
+import br.com.alfac.food.core.domain.pedido.StatusPedido;
+import br.com.alfac.food.core.exception.FoodException;
+import br.com.alfac.food.infra.pedido.persistence.ComboEntity;
+import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
+import br.com.alfac.food.infra.utils.ComboHelper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import br.com.alfac.food.core.domain.pedido.Combo;
-import br.com.alfac.food.core.domain.pedido.Pedido;
-import br.com.alfac.food.core.domain.pedido.StatusPedido;
-import br.com.alfac.food.core.exception.FoodException;
-import br.com.alfac.food.infra.cliente.mapper.ClienteEntityMapper;
-import br.com.alfac.food.infra.pedido.persistence.ComboEntity;
-import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
-import br.com.alfac.food.infra.utils.ComboHelper;
 
 @ExtendWith(MockitoExtension.class)
 public class PedidoEntityMapperTest {
 
     private PedidoEntityMapper mapper;
 
-    @Mock
-    private ClienteEntityMapper clienteEntityMapper;
 
     @BeforeEach
     public void setUp() {

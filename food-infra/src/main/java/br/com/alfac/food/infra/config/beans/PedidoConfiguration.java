@@ -7,7 +7,7 @@ import br.com.alfac.food.core.application.pagamento.usecases.CriarQrCodePagament
 import br.com.alfac.food.core.application.pedido.adapters.controller.ControladorPedido;
 import br.com.alfac.food.core.application.pedido.usecases.*;
 import br.com.alfac.food.infra.cliente.gateways.RepositorioClienteGatewayClient;
-import br.com.alfac.food.infra.item.gateways.RepositorioItemGatewayImpl;
+import br.com.alfac.food.infra.item.gateways.RepositorioItemGatewayClient;
 import br.com.alfac.food.infra.pagamento.client.PagamentoClientGatewayImpl;
 import br.com.alfac.food.infra.pagamento.gateway.RepositorioPagamentoGatewayImpl;
 import br.com.alfac.food.infra.pedido.gateways.RepositorioPedidoGatewayImpl;
@@ -21,7 +21,7 @@ public class PedidoConfiguration {
     @Bean
     public ControladorPedido pedidoService(final RepositorioPedidoGatewayImpl repositorioPedidoGateway,
                                            final RepositorioClienteGatewayClient repositorioClienteMySQLGateway,
-                                           final RepositorioItemGatewayImpl repositorioItemGateway,
+                                           final RepositorioItemGatewayClient repositorioItemGateway,
                                            final RepositorioPagamentoGatewayImpl repositorioPagamentoGateway,
                                            final PagamentoClientGatewayImpl pagamentoClientGateway) {
         ConsultarClientePorIdUseCase consultarClientePorIdUseCase = new ConsultarClientePorIdUseCase(repositorioClienteMySQLGateway);

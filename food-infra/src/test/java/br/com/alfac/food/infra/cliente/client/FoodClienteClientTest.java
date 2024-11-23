@@ -10,17 +10,16 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class FoodClienteClientTest {
 
@@ -59,7 +58,7 @@ class FoodClienteClientTest {
         Optional<Cliente> resultado = foodClienteClient.buscarClientePorId(clienteId);
 
         // Assert
-        assertEquals(true, resultado.isPresent());
+        assertTrue(resultado.isPresent());
         assertEquals(clienteId, resultado.get().getId());
         assertEquals(clienteMock.getNome(), resultado.get().getNome());
         assertEquals(clienteMock.getEmail(), resultado.get().getEmail());
