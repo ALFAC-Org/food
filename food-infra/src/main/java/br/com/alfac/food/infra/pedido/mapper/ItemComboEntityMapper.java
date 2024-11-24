@@ -18,33 +18,23 @@ public interface ItemComboEntityMapper {
 
     ItemComboEntityMapper INSTANCE = Mappers.getMapper(ItemComboEntityMapper.class);
 
-    @Mapping(target = "item.id", source = "id")
+    @Mapping(target = "itemId", source = "id")
     @Mapping(target = "id", source = "id", ignore = true)
-    @Mapping(target = "item.nome", source = "nome")
-    @Mapping(target = "item.categoria", source = "categoria")
-    @Mapping(target = "item.preco", source = "preco")
     @Mapping(target = "preco", source = "preco")
     @Mapping(target = "complementos", ignore = true)
     @Mapping(target = "observacoes", ignore = true)
     ItemComboEntity itemToEntity(Item item);
 
-    @Mapping(target = "item.id", source = "id")
-    @Mapping(target = "item.nome", source = "nome")
-    @Mapping(target = "item.categoria", source = "categoria")
-    @Mapping(target = "item.preco", source = "preco")
+    @Mapping(target = "itemId", source = "id")
     @Mapping(target = "preco", source = "preco")
     @Mapping(target = "id", source = "id", ignore = true)
     @Mapping(target = "complementos", source = "complementos", qualifiedByName = "itemComboToEntityParser")
     ItemComboEntity lancheToEntity(Lanche lanche);
 
-    @Mapping(target = "id", source = "item.id")
-    @Mapping(target = "nome", source = "item.nome")
-    @Mapping(target = "categoria", source = "item.categoria")
+    @Mapping(target = "id", source = "itemId")
     Item toItemDomain(ItemComboEntity item);
 
-    @Mapping(target = "id", source = "item.id")
-    @Mapping(target = "nome", source = "item.nome")
-    @Mapping(target = "categoria", source = "item.categoria")
+    @Mapping(target = "id", source = "itemId")
     @Mapping(target = "complementos", source = "complementos", qualifiedByName = "itemComboToDomainParser")
     Lanche toLancheDomain(ItemComboEntity item); 
 

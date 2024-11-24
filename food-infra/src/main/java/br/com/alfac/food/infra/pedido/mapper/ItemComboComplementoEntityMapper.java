@@ -10,13 +10,11 @@ import org.mapstruct.factory.Mappers;
 public interface ItemComboComplementoEntityMapper {
 
     ItemComboComplementoEntityMapper INSTANCE = Mappers.getMapper(ItemComboComplementoEntityMapper.class);
-    @Mapping(target = "item.id", source = "id")
+    @Mapping(target = "itemId", source = "id")
     @Mapping(target = "id", source = "id", ignore = true)
     ItemComboComplementoEntity toEntity(Item item);
 
-    @Mapping(target = "id", source = "item.id")
-    @Mapping(target = "nome", source = "item.nome")
-    @Mapping(target = "categoria", source = "item.categoria")
+    @Mapping(target = "id", source = "itemId")
     Item toDomain(ItemComboComplementoEntity item);
 
 }

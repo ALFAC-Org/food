@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import br.com.alfac.food.core.domain.item.CategoriaItem;
 import br.com.alfac.food.core.domain.item.Item;
 import br.com.alfac.food.core.domain.pedido.Lanche;
-import br.com.alfac.food.infra.item.persistence.ItemEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboComplementoEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboEntity;
 
@@ -26,10 +25,7 @@ public class ItemComboEntityMapperTest {
 
         ItemComboEntity entity = ItemComboEntityMapper.INSTANCE.itemToEntity(item);
 
-        assertEquals(item.getId(), entity.getItem().getId());
-        assertEquals(item.getNome(), entity.getItem().getNome());
-        assertEquals(item.getCategoria(), entity.getItem().getCategoria());
-        assertEquals(item.getPreco(), entity.getItem().getPreco());
+        assertEquals(item.getId(), entity.getItemId());
         assertEquals((Double) item.getPreco().doubleValue(), entity.getPreco());
         assertNull(entity.getId());
         assertNull(entity.getComplementos());
@@ -55,67 +51,42 @@ public class ItemComboEntityMapperTest {
 
         ItemComboEntity entity = ItemComboEntityMapper.INSTANCE.lancheToEntity(lanche);
 
-        assertEquals(lanche.getId(), entity.getItem().getId());
-        assertEquals(lanche.getNome(), entity.getItem().getNome());
-        assertEquals(lanche.getCategoria(), entity.getItem().getCategoria());
-        assertEquals(lanche.getPreco(), entity.getItem().getPreco());
+        assertEquals(lanche.getId(), entity.getItemId());
         assertEquals((Double) lanche.getPreco().doubleValue(), entity.getPreco());
         assertNull(entity.getId());
         assertEquals(1, entity.getComplementos().size());
         ItemComboComplementoEntity complementoEntity = entity.getComplementos().get(0);
-        assertEquals(complemento.getId(), complementoEntity.getItem().getId());
+        assertEquals(complemento.getId(), complementoEntity.getItemId());
     }
 
     @Test
     public void testToItemDomain() {
         ItemComboEntity entity = new ItemComboEntity();
-        ItemEntity itemEntity = new ItemEntity();
-        itemEntity.setId(1L);
-        itemEntity.setNome("Burger");
-        itemEntity.setCategoria(CategoriaItem.ACOMPANHAMENTO);
-        itemEntity.setPreco(new java.math.BigDecimal("5.00"));
 
-        entity.setItem(itemEntity);
+        entity.setItemId(1L);
 
         Item item = ItemComboEntityMapper.INSTANCE.toItemDomain(entity);
 
-        assertEquals(entity.getItem().getId(), item.getId());
-        assertEquals(entity.getItem().getNome(), item.getNome());
-        assertEquals(entity.getItem().getCategoria(), item.getCategoria());
+        assertEquals(entity.getItemId(), item.getId());
     }
 
     @Test
     public void testToLancheDomain() {
         ItemComboEntity entity = new ItemComboEntity();
-        ItemEntity itemEntity = new ItemEntity();
-        itemEntity.setId(2L);
-        itemEntity.setNome("Combo Meal");
-        itemEntity.setCategoria(CategoriaItem.LANCHE);
-        itemEntity.setPreco(new java.math.BigDecimal("20.00"));
 
         List<ItemComboComplementoEntity> complementoEntities = new ArrayList<>();
         ItemComboComplementoEntity complementoEntity = new ItemComboComplementoEntity();
-        ItemEntity complementoItemEntity = new ItemEntity();
-        complementoItemEntity.setId(3L);
-        complementoItemEntity.setNome("Fries");
-        complementoItemEntity.setCategoria(CategoriaItem.ACOMPANHAMENTO);
-        complementoItemEntity.setPreco(new java.math.BigDecimal("5.00"));
-        complementoEntity.setItem(complementoItemEntity);
         complementoEntities.add(complementoEntity);
 
-        entity.setItem(itemEntity);
+        entity.setItemId(1L);
         entity.setComplementos(complementoEntities);
 
         Lanche lanche = ItemComboEntityMapper.INSTANCE.toLancheDomain(entity);
 
-        assertEquals(entity.getItem().getId(), lanche.getId());
-        assertEquals(entity.getItem().getNome(), lanche.getNome());
-        assertEquals(entity.getItem().getCategoria(), lanche.getCategoria());
+        assertEquals(entity.getItemId(), lanche.getId());
         assertEquals(1, lanche.getComplementos().size());
         Item complemento = lanche.getComplementos().get(0);
-        assertEquals(complementoEntity.getItem().getId(), complemento.getId());
-        assertEquals(complementoEntity.getItem().getNome(), complemento.getNome());
-        assertEquals(complementoEntity.getItem().getCategoria(), complemento.getCategoria());
+        assertEquals(complementoEntity.getItemId(), complemento.getId());
     }
 
     @Test
@@ -145,7 +116,7 @@ public class ItemComboEntityMapperTest {
 
         assertEquals(1, result.size());
         ItemComboComplementoEntity complementoEntity = result.get(0);
-        assertEquals(complemento.getId(), complementoEntity.getItem().getId());
+        assertEquals(complemento.getId(), complementoEntity.getItemId());
     }
 
     @Test
@@ -165,20 +136,13 @@ public class ItemComboEntityMapperTest {
     public void testItemComboToDomainParser_withComplementosEntities() {
         List<ItemComboComplementoEntity> complementosEntities = new ArrayList<>();
         ItemComboComplementoEntity complementoEntity = new ItemComboComplementoEntity();
-        ItemEntity itemEntity = new ItemEntity();
-        itemEntity.setId(3L);
-        itemEntity.setNome("Fries");
-        itemEntity.setCategoria(CategoriaItem.ACOMPANHAMENTO);
-        itemEntity.setPreco(new java.math.BigDecimal("5.00"));
-        complementoEntity.setItem(itemEntity);
+        complementoEntity.setItemId(3L);
         complementosEntities.add(complementoEntity);
 
         List<Item> result = ItemComboEntityMapper.INSTANCE.itemComboToDomainParser(complementosEntities);
 
         assertEquals(1, result.size());
         Item complemento = result.get(0);
-        assertEquals(complementoEntity.getItem().getId(), complemento.getId());
-        assertEquals(complementoEntity.getItem().getNome(), complemento.getNome());
-        assertEquals(complementoEntity.getItem().getCategoria(), complemento.getCategoria());
+        assertEquals(complementoEntity.getItemId(), complemento.getId());
     }
 }

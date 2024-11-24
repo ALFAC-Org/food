@@ -24,7 +24,7 @@ public interface PedidoEntityMapper {
 
 
     default Pedido toDomain(PedidoEntity pedido) throws FoodException {
-        return new Pedido(pedido.getId(), pedido.getClienteId(), pedido.getStatus(),  combosToDomain(pedido.getCombos()), pedido.getDataCadastro());
+        return new Pedido(pedido.getId(), pedido.getClienteId(), pedido.getStatus(),  new ArrayList<>(), pedido.getDataCadastro());
     }
 
     List<Pedido> toDomain(List<PedidoEntity> pedido);
@@ -55,31 +55,6 @@ public interface PedidoEntityMapper {
         return combosEntities;
     }
 
-    @Named("combosToDomainParser")
-    default List<Combo> combosToDomain(List<ComboEntity> combosEntities) {
-        List<Combo> combos = new ArrayList<>();
 
-        for(ComboEntity comboEntity : combosEntities){
-            Combo combo = new Combo();
-
-            for(ItemComboEntity itemEntity : comboEntity.getItens()){
-                if(CategoriaItem.LANCHE.equals(itemEntity.getItem().getCategoria())){
-                    combo.setLanche(ItemComboEntityMapper.INSTANCE.toLancheDomain(itemEntity));
-                }
-                if(CategoriaItem.ACOMPANHAMENTO.equals(itemEntity.getItem().getCategoria())){
-                    combo.setAcompanhamento(ItemComboEntityMapper.INSTANCE.toItemDomain(itemEntity));
-                }
-                if(CategoriaItem.BEBIDA.equals(itemEntity.getItem().getCategoria())){
-                    combo.setBebida(ItemComboEntityMapper.INSTANCE.toItemDomain(itemEntity));
-                }
-                if(CategoriaItem.SOBREMESA.equals(itemEntity.getItem().getCategoria())){
-                    combo.setSobremesa(ItemComboEntityMapper.INSTANCE.toItemDomain(itemEntity));
-                }
-            }
-            combos.add(combo);
-        }
-
-        return combos;
-    }
 
 }
