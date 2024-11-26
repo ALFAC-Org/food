@@ -24,17 +24,13 @@ public class RepositorioItemGatewayClient implements RepositorioItemGateway {
 
     private WebClient webClient;
 
-
     public RepositorioItemGatewayClient(final WebClient webClient) {
         this.webClient = webClient;
     }
 
     @Override
     public Optional<Item> consultarItemPorId(final Long itemId) {
-
-
         try {
-            System.out.println("|| URL: " + url.concat(PATH_BUSCAR_CLIENTE).concat(itemId.toString()));
             Item item = webClient
                     .get()
                     .uri(url.concat(PATH_BUSCAR_CLIENTE).concat(itemId.toString()))
@@ -46,7 +42,6 @@ public class RepositorioItemGatewayClient implements RepositorioItemGateway {
 
         } catch (WebClientResponseException e) {
             LOGGER.error("Erro ao buscar item  itemId: {}", itemId, e);
-
         }
 
         return Optional.empty();

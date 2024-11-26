@@ -2,29 +2,22 @@ build:
 	@echo "Building the application"
 	@mvn compile
 
+build-without-tests:
+	@echo "Building the application without running tests"
+	@mvn clean install -U -DskipTests
+
+bdd-test:
+	@echo "Running BDD tests"
+	@mvn test -P bdd-tests
+
 unit-test:
 	@echo "Running unit tests"
-	@mvn test
+	@mvn test -P unit-tests
 
-test-coverage:
+unit-test-coverage:
 	@echo "Running unit tests with coverage"
-	@mvn clean test jacoco:report
+	@mvn clean test -P unit-tests
 
-#integration-test:
-#	@echo "Running integration tests"
-#	@mvn test -P integration-test
-#
-#system-test:
-#	@echo "Running system tests"
-#	@make docker-start-detached
-#	@mvn test -P system-test
-#	@make docker-stop
-#
-#performance-test:
-#	@echo "Running performance tests"
-#	@mvn gatling:test -P performance-test
-
-#test: unit-test integration-test
 test: unit-test
 
 package:
