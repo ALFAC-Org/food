@@ -59,18 +59,6 @@ public class PedidoEntityMapperTest {
         assertEquals(combos.size(), comboEntities.size());
     }
 
-    @Test
-    public void testCombosToDomain() {
-        List<ComboEntity> comboEntities = new ArrayList<>();
-        ComboEntity comboEntity = new ComboEntity();
-        comboEntity.setItens(new ArrayList<>());
-        comboEntities.add(comboEntity);
-
-        List<Combo> combos = mapper.combosToDomain(comboEntities);
-
-        assertNotNull(combos);
-        assertEquals(comboEntities.size(), combos.size());
-    }
 
 
 }

@@ -1,6 +1,5 @@
 package br.com.alfac.food.infra.pedido.persistence;
 
-import br.com.alfac.food.infra.item.persistence.ItemEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,10 +13,9 @@ public class ItemComboComplementoEntity implements Serializable {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     
-    @OneToOne
-    @JoinColumn(name = "id_item")
-    @NotNull(message = "Item é obrigatório")
-    private ItemEntity item;
+    @Column(name = "id_item")
+    @NotNull(message = "itemId é obrigatório")
+    private Long itemId;
 
     @NotNull(message = "Preço do item é obrigatório")
     private Double preco;
@@ -30,12 +28,12 @@ public class ItemComboComplementoEntity implements Serializable {
         this.id = id;
     }
 
-    public ItemEntity getItem() {
-        return item;
+    public Long getItemId() {
+        return itemId;
     }
 
-    public void setItem(ItemEntity item) {
-        this.item = item;
+    public void setItemId(Long item) {
+        this.itemId = item;
     }
 
     public Double getPreco() {

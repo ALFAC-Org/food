@@ -19,3 +19,4 @@ jobs:
       minimum_coverage: "0"
       coverage_results_path: "food-main/target/jacoco-report/jacoco.xml"
       jacoco_csv_file: "food-main/target/jacoco-report/jacoco.csv"
+      test_command: "mvn test -P unit-tests"

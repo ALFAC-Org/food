@@ -8,7 +8,6 @@ import br.com.alfac.food.core.domain.pedido.Combo;
 import br.com.alfac.food.core.domain.pedido.Lanche;
 import br.com.alfac.food.core.domain.pedido.Pedido;
 
-import br.com.alfac.food.infra.item.persistence.ItemEntity;
 import br.com.alfac.food.infra.pedido.persistence.ComboEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboComplementoEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboEntity;
@@ -31,17 +30,12 @@ public class PedidoEntityHelper {
                 for (Item item : combo.getItens()) {
                     ItemComboEntity itemComboEntity = new ItemComboEntity();
 
-                    ItemEntity itemEntity = new ItemEntity();
-                    itemEntity.setId(item.getId());
-                    itemEntity.setPreco(item.getPreco());
-                    itemEntity.setCategoria(item.getCategoria());
-                    itemEntity.setNome(item.getNome());
 
                     if (item instanceof Lanche lanche) {
                         itemComboEntity.setId(item.getId());
                         itemComboEntity.setObservacoes(lanche.getObservacoes());
                         itemComboEntity.setPreco((Double) item.getPreco().doubleValue());
-                        itemComboEntity.setItem(itemEntity);
+                        itemComboEntity.setItemId(1L);
 
                         List<ItemComboComplementoEntity> itemComboComplementoEntities = new ArrayList<>();
                         for (Item complemento : ((Lanche) item).getComplementos()) {
@@ -58,7 +52,7 @@ public class PedidoEntityHelper {
                         itemComboEntity.setPreco((Double) item.getPreco().doubleValue());
                         itemComboEntity.setComplementos(null);
                         itemComboEntity.setObservacoes(null);
-                        itemComboEntity.setItem(itemEntity);
+                        itemComboEntity.setItemId(1L);
                     }
 
                     itemComboEntitites.add(itemComboEntity);

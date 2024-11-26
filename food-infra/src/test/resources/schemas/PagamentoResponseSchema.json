@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "title": "PagamentoResponse",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "pedidoId": {
+      "type": "integer"
+    },
+    "dataPagamento": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "status", "pedidoId", "dataPagamento"],
+  "additionalProperties": false
+}
