@@ -17,7 +17,7 @@ public class RepositorioItemGatewayClient implements RepositorioItemGateway {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RepositorioItemGatewayClient.class);
 
-    private static final String PATH_BUSCAR_CLIENTE = "/api/v1/itens/por-id/";
+    private static final String PATH_BUSCAR_ITEM = "/api/v1/itens/por-id/";
 
     @Value("${food.foodproduto.url}")
     private String url;
@@ -33,7 +33,7 @@ public class RepositorioItemGatewayClient implements RepositorioItemGateway {
         try {
             Item item = webClient
                     .get()
-                    .uri(url.concat(PATH_BUSCAR_CLIENTE).concat(itemId.toString()))
+                    .uri(url.concat(PATH_BUSCAR_ITEM).concat(itemId.toString()))
                     .retrieve()
                     .bodyToMono(Item.class)
                     .block();
