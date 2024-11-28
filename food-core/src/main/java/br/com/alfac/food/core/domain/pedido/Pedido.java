@@ -41,6 +41,15 @@ public class Pedido {
 
     }
 
+    public Pedido(final Long id, final Pedido pedido) throws FoodException {
+        validarDados(id, pedido.getStatus(), pedido.getDataCadastro());
+        this.id = id;
+        this.clienteId = pedido.getId();
+        this.status = pedido.getStatus();
+        this.combos = pedido.getCombos();
+        this.dataCadastro = pedido.getDataCadastro();
+    }
+
     private void validarDados(final Long id, final StatusPedido statusPedido, final LocalDateTime dataCadastro) throws FoodException {
         if (Objects.isNull(id)) {
             throw new FoodException(PedidoErros.ID_OBRIGATORIO);

@@ -44,7 +44,7 @@ public class RepositorioPedidoGatewayImpl implements RepositorioPedidoGateway {
 
         PedidoEntity pedidoCriado = pedidoEntityRepository.save(pedidoEntity);
 
-        return pedidoEntityMapper.toDomain(pedidoCriado);
+        return new Pedido(pedidoCriado.getId(), pedido);
     }
 
     private Optional<Pedido> montarPedido(Optional<PedidoEntity> pedidoEntityOpt) throws FoodException {

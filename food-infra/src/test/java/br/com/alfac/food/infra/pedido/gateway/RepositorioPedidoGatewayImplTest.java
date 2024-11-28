@@ -96,13 +96,14 @@ public class RepositorioPedidoGatewayImplTest {
 
         when(pedidoEntityMapper.toEntity(pedido)).thenReturn(pedidoEntity);
         when(pedidoEntityRepository.save(pedidoEntity)).thenReturn(pedidoCriado);
-        when(pedidoEntityMapper.toDomain(pedidoCriado)).thenReturn(pedido);
 
         // Act
         Pedido result = repositorioPedidoGatewayImpl.registrarPedido(pedido);
 
         // Assert
-        assertEquals(pedido, result);
+        assertEquals(pedidoCriado.getId(), result.getId());
+        assertEquals(pedidoCriado.getStatus(), result.getStatus());
+        assertEquals(pedidoCriado.getDataCadastro(), result.getDataCadastro());
     }
 
     @Test

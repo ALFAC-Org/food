@@ -63,21 +63,6 @@ public interface PedidoEntityMapper {
         for (ComboEntity comboEntity : combosEntities) {
             Combo combo = new Combo();
 
-            for (ItemComboEntity itemEntity : comboEntity.getItens()) {
-// TODO: Fix this
-//                if (CategoriaItem.LANCHE.equals(itemEntity.getItem().getCategoria())) {
-//                    combo.setLanche(ItemComboEntityMapper.INSTANCE.toLancheDomain(itemEntity));
-//                }
-//                if (CategoriaItem.ACOMPANHAMENTO.equals(itemEntity.getItem().getCategoria())) {
-//                    combo.setAcompanhamento(ItemComboEntityMapper.INSTANCE.toItemDomain(itemEntity));
-//                }
-//                if (CategoriaItem.BEBIDA.equals(itemEntity.getItem().getCategoria())) {
-//                    combo.setBebida(ItemComboEntityMapper.INSTANCE.toItemDomain(itemEntity));
-//                }
-//                if (CategoriaItem.SOBREMESA.equals(itemEntity.getItem().getCategoria())) {
-//                    combo.setSobremesa(ItemComboEntityMapper.INSTANCE.toItemDomain(itemEntity));
-//                }
-            }
             combos.add(combo);
         }
 
