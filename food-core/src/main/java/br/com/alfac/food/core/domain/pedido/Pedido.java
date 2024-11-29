@@ -44,7 +44,7 @@ public class Pedido {
     public Pedido(final Long id, final Pedido pedido) throws FoodException {
         validarDados(id, pedido.getStatus(), pedido.getDataCadastro());
         this.id = id;
-        this.clienteId = pedido.getId();
+        this.clienteId = pedido.getClienteId();
         this.status = pedido.getStatus();
         this.combos = pedido.getCombos();
         this.dataCadastro = pedido.getDataCadastro();

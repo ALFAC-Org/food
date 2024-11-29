@@ -1,6 +1,7 @@
 package br.com.alfac.food.core.application.pedido.usecases;
 
 
+import br.com.alfac.food.core.application.item.adapters.gateways.RepositorioItemGateway;
 import br.com.alfac.food.core.application.pedido.adapters.gateways.RepositorioPedidoGateway;
 import br.com.alfac.food.core.domain.pedido.Pedido;
 import br.com.alfac.food.core.exception.FoodException;
@@ -22,6 +23,9 @@ public class ConsultarPedidoPorIdUseCaseTest {
 
     @Mock
     private RepositorioPedidoGateway pedidoRepository;
+
+    @Mock
+    private RepositorioItemGateway repositorioItemGateway;
 
     @InjectMocks
     private ConsultarPedidoPorIdUseCase consultarPedidoPorIdUseCase;

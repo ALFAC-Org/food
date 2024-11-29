@@ -10,14 +10,29 @@ public class Item {
     private CategoriaItem categoria;
     private Long id;
 
+    public Item() {
+    }
+
+    public Item(Long id, BigDecimal preco) {
+        this.id = id;
+        this.preco = preco;
+    }
+
+    public Item(String nome, BigDecimal preco, CategoriaItem categoria, Long id) {
+        this.nome = nome;
+        this.preco = preco;
+        this.categoria = categoria;
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }
-    
+
     public void setId(final Long id) {
         this.id = id;
     }
-    
+
     public String getNome() {
         return nome;
     }

@@ -1,11 +1,6 @@
 package br.com.alfac.food.core.application.pedido.adapters.controller;
 
-import br.com.alfac.food.core.application.cliente.adapters.gateways.RepositorioClienteGateway;
 import br.com.alfac.food.core.application.cliente.usecases.ConsultarClientePorIdUseCase;
-import br.com.alfac.food.core.application.item.adapters.gateways.RepositorioItemGateway;
-import br.com.alfac.food.core.application.item.usecases.ConsultarItemPorIdUseCase;
-import br.com.alfac.food.core.application.pagamento.adapters.gateways.PagamentoClientGateway;
-import br.com.alfac.food.core.application.pagamento.adapters.gateways.RepositorioPagamentoGateway;
 import br.com.alfac.food.core.application.pagamento.usecases.CriarPagamentoPendenteUseCase;
 import br.com.alfac.food.core.application.pagamento.usecases.CriarQrCodePagamento;
 import br.com.alfac.food.core.application.pedido.adapters.gateways.RepositorioPedidoGateway;
@@ -19,7 +14,6 @@ import br.com.alfac.food.core.domain.pedido.StatusPedido;
 import br.com.alfac.food.core.exception.FoodException;
 
 import java.util.List;
-import java.util.Map;
 
 public class ControladorPedido {
 

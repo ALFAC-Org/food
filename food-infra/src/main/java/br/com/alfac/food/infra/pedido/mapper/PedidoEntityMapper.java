@@ -6,15 +6,19 @@ import br.com.alfac.food.core.domain.pedido.Combo;
 import br.com.alfac.food.core.domain.pedido.Lanche;
 import br.com.alfac.food.core.domain.pedido.Pedido;
 import br.com.alfac.food.core.exception.FoodException;
+import br.com.alfac.food.core.utils.CollectionsUtils;
 import br.com.alfac.food.infra.pedido.persistence.ComboEntity;
 import br.com.alfac.food.infra.pedido.persistence.ItemComboEntity;
 import br.com.alfac.food.infra.pedido.persistence.PedidoEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Mapper(componentModel = "spring")
 public interface PedidoEntityMapper {
@@ -62,7 +66,23 @@ public interface PedidoEntityMapper {
 
         for (ComboEntity comboEntity : combosEntities) {
             Combo combo = new Combo();
+            for (ItemComboEntity itemEntity : comboEntity.getItens()) {
+                if (StringUtils.isNotBlank(itemEntity.getObservacoes()) ||
+                        CollectionsUtils.naoVazio(itemEntity.getComplementos())){
 
+                    Lanche lanche = new Lanche();
+                    lanche.setObservacoes(itemEntity.getObservacoes());
+                    lanche.setPreco(new BigDecimal(itemEntity.getPreco()));
+                    lanche.setId(itemEntity.getItemId());
+                    itemEntity.getComplementos().forEach(complemento -> {
+                        lanche.adicionaComplemento(new Item(complemento.getItemId(), new BigDecimal(complemento.getPreco())));
+                    });
+                    combo.setLanche(lanche);
+                } else {
+
+                    combo.adicionarItem(new Item(itemEntity.getItemId(), new BigDecimal(itemEntity.getPreco())));
+                }
+            }
             combos.add(combo);
         }
 

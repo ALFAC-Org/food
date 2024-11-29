@@ -15,6 +15,7 @@ import br.com.alfac.food.core.exception.item.ItemError;
 import br.com.alfac.food.core.utils.CollectionsUtils;
 
 public class Combo {
+    private List<Item> itensTmp = new ArrayList<>();
     private Lanche lanche;
     private Item acompanhamento;
     private Item bebida;
@@ -156,4 +157,18 @@ public class Combo {
     private boolean categoriaItemNaoPermitida(CategoriaItem categoriaEsperada, CategoriaItem categoriaItem) {
         return !categoriaEsperada.equals(categoriaItem);
     }
+
+    public void adicionarItem(final Item item) {
+        if (CollectionsUtils.vazio(itensTmp)) {
+            itensTmp = new ArrayList<>();
+        }
+
+        itensTmp.add(item);
+
+    }
+
+    public List<Item> getItensTmp(){
+        return itensTmp;
+    }
+
 }
