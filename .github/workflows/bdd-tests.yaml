@@ -1,0 +1,13 @@
+name: BDD Tests
+
+on:
+  push:
+
+jobs:
+  execute-bdd-tests:
+    uses: ALFAC-Org/github-workflows/.github/workflows/bdd-tests.yaml@main
+    secrets: inherit
+    permissions: write-all
+    with:
+      application_port: "8080"
+      cucumber_report_path: "food-infra/target/cucumber-reports/cucumber.json"

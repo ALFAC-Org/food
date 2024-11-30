@@ -59,7 +59,10 @@ Veja em: [https://miro.com/app/board/uXjVKZNCxxM=/?moveToWidget=3458764600931910
 - **Linguagem de Programação:** Java 17
 - **Framework:** Spring Boot
 - **Gerenciador de dependências:** Maven
-- **Banco de dados:** MySQL 8
+- **Banco de dados:**
+  - Este repositório: MySQL 8
+  - Microsserviço `food-cliente`: MySQL 8
+  - Microsserviço `food-produto`: AWS DynamoDB
 - **Documentação e uso de API's:** Swagger
 - **Conteinerização:** Docker
 - **Orquestração:** Kubernetes
@@ -95,47 +98,47 @@ Veja em [Fluxo do usuário](./docs/FLUXO_USUARIO.md).
   <summary>FASE 1</summary>
 
 Veja em [https://github.com/ALFAC-Org/food/tree/hexagonal#roadmap](https://github.com/ALFAC-Org/food/tree/hexagonal#roadmap)
-
 </details>
 
 <details>
   <summary>FASE 2</summary>
 
 Veja em [https://github.com/ALFAC-Org/food/tree/fase2-clean-arch?tab=readme-ov-file#roadmap](https://github.com/ALFAC-Org/food/tree/fase2-clean-arch?tab=readme-ov-file#roadmap)
-
 </details>
 
 <details>
   <summary>FASE 3</summary>
 
-- [x] 1. Implementar um API Gateway e um `function serverless` para `autenticar o cliente` com base no CPF.
-  - [x] 1. Integrar ao sistema de autenticação para identificar o cliente.
-      1. Desenho (room): https://excalidraw.com/#room=1cf48787e8cd8028a3bd,Pb8UVcTDexZQseHv8VOFpQ
-      2. Desenho (estático): https://excalidraw.com/#json=J_qszI3T0Q_ppK9SychFs,aBuXjzcOrsndQuOsvP9o4A
-      
-- [x] 2. Implementar as melhores práticas de `CI/CD` para a aplicação, segregando os códigos em repositórios, por exemplo:
-  - [x] 1 repositório para o Lambda - repositório `food-serveless-function`.
-  - [x] 1 repositório para sua infra Kubernetes com Terraform - repositório `food-cloud-infra`.
-  - [x] 1 repositório para sua infra banco de dados gerenciáveis com Terraform - repositório `food-database`.
-    4. 1 repositório para sua aplicação que é executada no Kubernetes - repositório `food`
-- [x] 3. Os repositórios devem fazer deploy automatizado na conta da nuvem utilizando actions. As branchs `main/master` devem ser protegidas, não permitindo commits direto. Sempre utilize `pull request`.
-- [x] 4. Melhorar a estrutura do banco de dados escolhido, documentar seguindo os padrões de modelagem de dados e justificar a escolha do banco de dados.
-- [x] 5. Você tem a liberdade para escolher qual a infra de nuvem desejar, mas terá de utilizar os serviços serverless: functions (AWS Lamba, Azure functions ou Google Functions, por exemplo), banco de dados gerenciáveis (AWS RDS, Banco de Dados do Azure ou Cloud SQL no GCP, por exemplo), sistema de autenticação (AWS Cognito, Microsoft AD ou Google Identity platform no GCP, por exemplo).
-
+Veja em [https://github.com/ALFAC-Org/food/tree/fase3-devops?tab=readme-ov-file#roadmap](https://github.com/ALFAC-Org/food/tree/fase3-devops?tab=readme-ov-file#roadmap)
 </details>
 
-## Checando a execução do github workflow actions
-
-Add `--verbose` to see the logs.
-
-- https://nektosact.com/
-- `act --list`
-- `act -j <job>`
-- `act -j test-unit --container-architecture linux/amd64`
 <details>
   <summary>FASE 4</summary>
 
-**<span style="color:red">TODO</span>**
+1. Refatore o projeto, separe-o em ao menos 3 (três) microsserviços. Alguns
+   exemplos de serviços:
+   - [x] a. Pedido: responsável por operacionalizar o processo de pedidos,
+   registrando os pedidos, retornando as informações necessárias
+   para montar um pedido, listando os pedidos registrados e em
+   processo de produção (visão de cliente).
+   - [x] b. Pagamento: responsável por operacionalizar a cobrança de um
+   pedido, registrando a solicitação de pagamento, recebendo o
+   retorno do processador de pagamento e atualizando o status do
+   pedido.
+   - [x] c. Produção: responsável por operacionalizar o processo de
+   produção do pedido, acompanhando a fila de pedidos (visão da
+   cozinha), atualização de status de cada passo do pedido.
+
+Ao refatorar, os microsserviços devem conter testes unitários.
+- [x] a. Ao menos um dos caminhos de teste deve implementar BDD.
+- [x] b. Em todos os projetos, a cobertura de teste deve ser de 80%.
+
+2. Seus repositórios devem ser separados para cada aplicação e devem respeitar as seguintes regras:
+- [ ] a. As branchs main/master devem ser protegidas, não permitindo commits
+ diretamente.
+- [ ]  b. Pull Request para branch main/master, que deve validar o build da aplicação, e a qualidade de código via sonarqube ou qualquer outro
+ serviço semelhante, cobrindo 80% de coverage no mínimo.
+- [x] c. No Merge, o deploy de todos seus microsserviços devem ser executados, isso significa que todos os repositórios devem estar com CI/CD criados, e executados corretamente.
 
 </details>
 

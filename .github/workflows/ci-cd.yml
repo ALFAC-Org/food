@@ -51,6 +51,7 @@ jobs:
   build-docker-image:
     runs-on: ubuntu-latest
     needs: check-aws-online
+    if: success()
 
     env:
       BUILD_VERSION: ${{ github.event.inputs.app_image_version || github.sha }}

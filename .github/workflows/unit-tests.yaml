@@ -1,6 +1,7 @@
-name: Coverage
+name: Unit Tests
 
-on: [push, pull_request]
+on:
+  push:
 
 # Descomente se precisar de uma nova branch para fazer alterações/testes
 #on:
@@ -9,8 +10,7 @@ on: [push, pull_request]
 #      - feat/add-coverage-info
 
 jobs:
-  coverage:
-    name: Coverage
+  execute-unit-tests:
     uses: ALFAC-Org/github-workflows/.github/workflows/coverage.yaml@main  
     secrets: inherit
     permissions: write-all
