@@ -30,7 +30,7 @@ public class PedidoConfiguration {
         CriarPagamentoPendenteUseCase criarPagamentoPendenteUseCase = new CriarPagamentoPendenteUseCase(repositorioPagamentoGateway);
         CriarQrCodePagamento criarQrCodePagamento = new CriarQrCodePagamento(pagamentoClientGateway);
         ListarPedidosOrdenadosUseCase listarPedidosOrdenadosUseCase = new ListarPedidosOrdenadosUseCase(repositorioPedidoGateway);
-        ConsultarPedidoPorIdUseCase consultarPedidoPorIdUseCase = new ConsultarPedidoPorIdUseCase(repositorioPedidoGateway);
+        ConsultarPedidoPorIdUseCase consultarPedidoPorIdUseCase = new ConsultarPedidoPorIdUseCase(repositorioPedidoGateway, repositorioItemGateway);
         AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase = new AtualizarStatusPedidoUseCase(repositorioPedidoGateway);
         ListarPedidosPorStatusUseCase listarPedidosPorStatusUseCase = new ListarPedidosPorStatusUseCase(repositorioPedidoGateway);
 

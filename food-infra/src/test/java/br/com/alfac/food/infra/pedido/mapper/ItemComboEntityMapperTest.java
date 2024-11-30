@@ -28,7 +28,7 @@ public class ItemComboEntityMapperTest {
         assertEquals(item.getId(), entity.getItemId());
         assertEquals((Double) item.getPreco().doubleValue(), entity.getPreco());
         assertNull(entity.getId());
-        assertNull(entity.getComplementos());
+        assertEquals(0, entity.getComplementos().size());
         assertNull(entity.getObservacoes());
     }
 
