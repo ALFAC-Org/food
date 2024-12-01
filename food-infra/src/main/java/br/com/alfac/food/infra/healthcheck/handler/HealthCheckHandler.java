@@ -46,6 +46,7 @@ public class HealthCheckHandler {
     versions.put("status", "Aplicação está funcionando. Veja as versões atuais.");
     versions.put("application-version", applicationVersion);
     versions.put("database-version", databaseVersion);
+    versions.put("ambiente", "producao");
     return new ResponseEntity<>(versions, HttpStatus.OK);
   }
 }
